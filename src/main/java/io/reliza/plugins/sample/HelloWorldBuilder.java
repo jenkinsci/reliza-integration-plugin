@@ -67,7 +67,13 @@ public class HelloWorldBuilder extends Builder implements SimpleBuildStep {
     	});
     	//run.getAction(EnvInjectPluginAction.class);
     	//run.
-        EnvInjectActionSetter envInjectActionSetter = new EnvInjectActionSetter(getNodeRootPath());
+    	FilePath nodePath = getNodeRootPath();
+    	if (null == nodePath) {
+    		listener.getLogger().print("Node path is null \n");
+    	} else {
+    		listener.getLogger().print("Node path name = " + nodePath.getBaseName() + "\n");
+    	}
+        EnvInjectActionSetter envInjectActionSetter = new EnvInjectActionSetter(nodePath);
         try {
             envInjectActionSetter.addEnvVarsToRun(run, envVars);
         } catch (EnvInjectException | IOException | InterruptedException e) {
