@@ -1,4 +1,4 @@
-package io.reliza.plugins.sample;
+package io.reliza.plugins.reliza;
 
 import java.io.IOException;
 
@@ -36,7 +36,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 	        // throw new AbstractMethodError("Unless a build wrapper is marked as not requiring a workspace context, you must implement the overload of the setUp() method that takes both a workspace and a launcher.");
 	    }
 	
-	@Symbol("rwrap")
+	@Symbol("reliza")
     @Extension
     public static final class DescriptorImpl extends BuildWrapperDescriptor {
 		
