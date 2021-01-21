@@ -12,6 +12,9 @@ Run development mode with
 mvn hpi:run
 ```
 
+Install pipeline plugin  
+https://plugins.jenkins.io/workflow-aggregator/
+
 Sample pipeline:
 
 ```
