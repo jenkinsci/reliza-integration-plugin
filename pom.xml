@@ -59,6 +59,11 @@
             <artifactId>workflow-durable-task-step</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.reliza</groupId>
+            <artifactId>reliza-java-client</artifactId>
+            <version>0.1.0</version>
+        </dependency>
     </dependencies>
 
     

@@ -21,6 +21,8 @@ import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import io.reliza.plugins.sample.Messages;
 import jenkins.tasks.SimpleBuildStep;
+import reliza.java.client.Flags;
+import reliza.java.client.Library;
 
 public class RelizaBuilder extends Builder implements SimpleBuildStep {
 
@@ -52,8 +54,13 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
         } else {
             listener.getLogger().println("Hello, " + name + "!");
         }
-
-    	listener.getLogger().println(envVars.get("PAVEL_VAR"));
+        Flags flags = Flags.builder().apiKeyId("PROJECT__6ba5691c-05e3-4ecd-a45a-18b382419f40")
+                .apiKey("0828b0fabf663fc17a604b527992965ee2abeb4831319125f1692d9ec111ea078dcc8261ed0b9aaf353ce2d003b823b7")
+                .branch("ho")
+                .version(envVars.get("VERSION"))
+                .baseUrl("https://test.relizahub.com").build();
+        Library library = new Library(flags);
+    	listener.getLogger().println(library.addRelease());
     }
 
     @Symbol("relizagreet")
