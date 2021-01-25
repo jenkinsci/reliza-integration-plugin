@@ -49,7 +49,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 
     @Override
     public void perform(Run<?, ?> run, FilePath workspace, EnvVars envVars, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
-    	if (useFrench) {
+        if (useFrench) {
             listener.getLogger().println("Bonjour, " + name + "!");
         } else {
             listener.getLogger().println("Hello, " + name + "!");
@@ -60,7 +60,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
                 .version(envVars.get("VERSION"))
                 .baseUrl("https://test.relizahub.com").build();
         Library library = new Library(flags);
-    	listener.getLogger().println(library.addRelease());
+        listener.getLogger().println(library.addRelease());
     }
 
     @Symbol("relizagreet")
