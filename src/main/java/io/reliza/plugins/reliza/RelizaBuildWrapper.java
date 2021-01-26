@@ -1,6 +1,7 @@
 package io.reliza.plugins.reliza;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -19,10 +20,14 @@ import reliza.java.client.Library;
 import reliza.java.client.responses.ProjectVersion;
 
 public class RelizaBuildWrapper extends SimpleBuildWrapper {
+    private final String projectId;
+    private final String uri;
     
     @DataBoundConstructor
-    public RelizaBuildWrapper() {
+    public RelizaBuildWrapper(String projectId, String uri) {
         super();
+        this.projectId = projectId;
+        this.uri = uri;
     }
     
     @Override
@@ -33,12 +38,28 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
                 return;
             }
             listener.getLogger().println("setting up reliza context wrapper \n");
-            Flags flags = Flags.builder().apiKeyId("PROJECT__6ba5691c-05e3-4ecd-a45a-18b382419f40")
-                    .apiKey("0828b0fabf663fc17a604b527992965ee2abeb4831319125f1692d9ec111ea078dcc8261ed0b9aaf353ce2d003b823b7")
-                    .branch("ho").baseUrl("https://test.relizahub.com").build();
+            String apiKeyId;
+            String apiKey;
+            if (initialEnvironment.get("PROJECT_API_ID") != null && initialEnvironment.get("PROJECT_API_KEY") != null) {
+                apiKeyId = initialEnvironment.get("PROJECT_API_ID");
+                apiKey = initialEnvironment.get("PROJECT_API_KEY");
+            } else {
+                apiKeyId = initialEnvironment.get("ORG_API_ID");
+                apiKey = initialEnvironment.get("ORG_API_KEY"); 
+            }
+            
+            Flags flags = Flags.builder().apiKeyId(apiKeyId)
+                    .apiKey(apiKey)
+                    .projectId(UUID(projectId, listener))
+                    .baseUrl(uri)
+                    .branch("ho").build();
             Library library = new Library(flags);
             ProjectVersion projectVersion = library.getVersion();
             context.env("VERSION", projectVersion.getVersion());
+            context.env("URI", uri);
+            context.env("PROJECT_ID", projectId);
+            context.env("API_KEY_ID", apiKeyId);
+            context.env("API_KEY", apiKey);
             
             
             // throw new AbstractMethodError("Unless a build wrapper is marked as not requiring a workspace context, you must implement the overload of the setUp() method that takes both a workspace and a launcher.");
@@ -61,6 +82,19 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
         @Override
         public boolean isApplicable(final AbstractProject<?, ?> item) {
           return true;
+        }
+    }
+    
+    public static UUID UUID(String projectId, TaskListener listener) {
+        try {
+            if (projectId == null || projectId.isBlank()) {
+                return null;
+            } else {
+                return UUID.fromString(projectId);
+            }
+        } catch (IllegalArgumentException e) {
+            listener.getLogger().println(e);
+            return null;
         }
     }
 }

@@ -22,28 +22,26 @@ public class HelloWorldBuilderTest {
     @Test
     public void testConfigRoundtrip() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        project.getBuildersList().add(new RelizaBuilder(name));
+        project.getBuildersList().add(new RelizaBuilder());
         project = jenkins.configRoundtrip(project);
-        jenkins.assertEqualDataBoundBeans(new RelizaBuilder(name), project.getBuildersList().get(0));
+        jenkins.assertEqualDataBoundBeans(new RelizaBuilder(), project.getBuildersList().get(0));
     }
 
     @Test
     public void testConfigRoundtripFrench() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        RelizaBuilder builder = new RelizaBuilder(name);
-        builder.setUseFrench(true);
+        RelizaBuilder builder = new RelizaBuilder();
         project.getBuildersList().add(builder);
         project = jenkins.configRoundtrip(project);
 
-        RelizaBuilder lhs = new RelizaBuilder(name);
-        lhs.setUseFrench(true);
+        RelizaBuilder lhs = new RelizaBuilder();
         jenkins.assertEqualDataBoundBeans(lhs, project.getBuildersList().get(0));
     }
 
     @Test
     public void testBuild() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        RelizaBuilder builder = new RelizaBuilder(name);
+        RelizaBuilder builder = new RelizaBuilder();
         project.getBuildersList().add(builder);
 
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
@@ -54,8 +52,7 @@ public class HelloWorldBuilderTest {
     public void testBuildFrench() throws Exception {
 
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        RelizaBuilder builder = new RelizaBuilder(name);
-        builder.setUseFrench(true);
+        RelizaBuilder builder = new RelizaBuilder();
         project.getBuildersList().add(builder);
 
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
