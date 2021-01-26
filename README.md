@@ -22,19 +22,29 @@ pipeline {
     agent any
     
     stages {
-        stage('Hello From Reliza') {
+        stage('setEnvironment') {
             steps {
-                reliza {
-                    echo 'test'
-                    relizagreet('Reliza')
-                    echo "Pavel var is ${env.PAVEL_VAR}"
+                script {
+                    try {
+                        withCredentials([usernamePassword(credentialsId: 'PROJECT_API', usernameVariable: 'PROJECT_API_ID', passwordVariable: 'PROJECT_API_KEY')]){
+                            env.PROJECT_API_ID = "${PROJECT_API_ID}"
+                            env.PROJECT_API_KEY = "${PROJECT_API_KEY}"  
+                        }
+                    } catch (Exception e) {}
+                    try{
+                        withCredentials([usernamePassword(credentialsId: "ORG_API", usernameVariable: "ORG_API_ID", passwordVariable: "ORG_API_KEY")]) {
+                            env.ORG_API_ID = "${ORG_API_ID}"
+                            env.ORG_API_KEY = "${ORG_API_KEY}"
+                        }
+                    } catch (Exception e) {}
                 }
-                echo 'Hello World'
-                echo "Pavel var is ${env.PAVEL_VAR}"
             }
-            post {
-                always {
-                    echo 'post action'
+        }
+        stage('addRelease') {
+            steps {
+                reliza(uri: "https://test.relizahub.com", projectId: "6ba5691c-05e3-4ecd-a45a-18b382419f40") {
+                    getProjectMetadata()
+                    echo "Version is ${env.VERSION}"
                 }
             }
         }
@@ -42,12 +52,8 @@ pipeline {
 }
 ```
 
-This will set PAVEL_VAR env variable to "pavel var from context".
-
-
-TODO:
-
-The wrapper should call Reliza Hub and get version details, it should then propagate those version details onto enclosed Reliza steps to submit build information to Reliza Hub.
+Credentials should be set beforehand to be set as environment variables. The wrapper calls Reliza Hub to get version details and then
+propagates those version details onto enclosed Reliza steps to submit build information to Reliza Hub.
 
 ## Resources on pipelines and writing plugins
 https://www.jenkins.io/doc/book/pipeline/syntax/  
