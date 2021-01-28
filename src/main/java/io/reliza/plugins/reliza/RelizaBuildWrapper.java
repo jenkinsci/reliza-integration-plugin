@@ -16,24 +16,43 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildWrapperDescriptor;
 import jenkins.tasks.SimpleBuildWrapper;
-
 import reliza.java.client.Flags;
-import reliza.java.client.Flags.FlagsBuilder;
 import reliza.java.client.Library;
 import reliza.java.client.responses.ProjectVersion;
 
+/**
+ * An extension of {@link SimpleBuildWrapper} which sets up the reliza wrapper to perform
+ * the api call to reliza hub.
+ */
 public class RelizaBuildWrapper extends SimpleBuildWrapper {
     private String projectId;
     private String uri;
     
+    /**
+     * Sets up required parameters from buildwrapper initialization (currently no required parameters).
+     */
     @DataBoundConstructor
     public RelizaBuildWrapper() {
         super();
     }
     
+    /**
+     * Sets up optional parameters from buildwrapper initialization.
+     * @param projectId - Project UUID obtainable from reliza hub.
+     */
     @DataBoundSetter public void setProjectId(String projectId) {this.projectId = projectId;}
+    
+    /**
+     * Sets up optional parameters from buildwrapper initialization.
+     * @param uri - Base uri of api call, default set to "https://app.relizahub.com".
+     */
     @DataBoundSetter public void setUri(String uri) {this.uri = uri;}
     
+    /**
+     * {@inheritDoc} <p>
+     * Retrieves preset credentials and parameters to perform getVersion api call and then sets
+     * them as environment variables to perform subsequent addRelease call
+     */
     @Override
      public void setUp(Context context, Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
             // If this does not require a workspace, defer to the version that does not take a workspace and launcher.
@@ -52,12 +71,11 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
                 apiKey = initialEnvironment.get("ORG_API_KEY"); 
             }
             
-            FlagsBuilder flagsBuilder = Flags.builder().apiKeyId(apiKeyId)
+            Flags flags = Flags.builder().apiKeyId(apiKeyId)
                     .apiKey(apiKey)
                     .projectId(UUID(projectId, listener))
-                    .branch("ho");
-            if (uri != null) {flagsBuilder.baseUrl(uri);}  
-            Flags flags = flagsBuilder.build();
+                    .branch("ho").build();
+            if (uri != null) {flags.setBaseUrl(uri);}  
             Library library = new Library(flags);
             ProjectVersion projectVersion = library.getVersion();
             
@@ -90,6 +108,12 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
         }
     }
     
+    /**
+     * String to UUID converter which handles conversion errors.
+     * @param projectId - Project UUID.
+     * @param listener - TaskListener to log specific error.
+     * @return Corresponding UUID if conversion succeeded and null otherwise.
+     */
     public static UUID UUID(String projectId, TaskListener listener) {
         try {
             if (projectId == null || projectId.isEmpty()) {

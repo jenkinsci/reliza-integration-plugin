@@ -20,6 +20,8 @@ import reliza.java.client.Flags;
 import reliza.java.client.Flags.FlagsBuilder;
 import reliza.java.client.Library;
 
+//TODO: Several methods which their uses are currently unknown and have no docs.
+
 public class RelizaBuilder extends Builder implements SimpleBuildStep {
 
     @DataBoundConstructor
