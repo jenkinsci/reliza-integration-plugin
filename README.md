@@ -8,8 +8,11 @@ Plugin will release new version and add release details to Reliza Hub when perfo
 
 ## 1. Getting started (Integration with GitHub):
 
-Install pipeline plugin, will need to restart server for installation to finish.
-https://plugins.jenkins.io/workflow-aggregator/
+Install docker and pipeline plugins, will need to restart server for installation to finish. <p>
+https://plugins.jenkins.io/workflow-aggregator/  
+https://plugins.jenkins.io/docker-build-publish/  
+https://plugins.jenkins.io/docker-plugin/  
+https://plugins.jenkins.io/docker-workflow/
 
 ## 2. Setting up GitHub webhook:
 
@@ -67,18 +70,43 @@ Under pipeline, select pipeline script from SCM and put in your GitHub repositor
 
 Branches to build default is set to master and set script path to Jenkinsfile. <p>
 
-The Jenkinsfile you create will contain only the pipeline script.
+The Jenkinsfile you create should contain only the pipeline script.
 
-##5. Example pipeline:
+## 5. Example pipeline:
 
 ```
 pipeline {
-    agent any
-    
+    agent {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: jenkins-slave
+spec:
+  containers:
+  - name: dind
+    image: docker:19.03.12-dind
+    command:
+    - cat
+    volumeMounts:
+    - mountPath: /var/run/docker.sock
+      name: dockersock
+    tty: true
+  volumes:
+  - name: dockersock
+    hostPath:
+      path: /var/run/docker.sock
+"""
+        }
+    }
     stages {
-        stage('setEnvironment') {
+        stage('Set Environment') {
             steps {
                 script {
+                    env.BUILD_START_TIME = sh(script: 'date -Iseconds', returnStdout: true).trim()
+                    env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
                     try {
                         withCredentials([usernamePassword(credentialsId: 'PROJECT_API', usernameVariable: 'PROJECT_API_ID', passwordVariable: 'PROJECT_API_KEY')]){
                             env.PROJECT_API_ID = "${PROJECT_API_ID}"
@@ -94,11 +122,36 @@ pipeline {
                 }
             }
         }
-        stage('addRelease') {
+        stage('Build Image') {
             steps {
-                reliza(uri: "https://test.relizahub.com", projectId: "6ba5691c-05e3-4ecd-a45a-18b382419f40") {
-                    getProjectMetadata()
+                container('dind') {
+                    sh '''
+                        docker build -t relizatest/throw .
+                        docker login -u relizatest -p 9557ef8b-3ac3-4a2e-b351-a412d52d88d9
+                        docker push relizatest/throw
+                        DOCKER_SHA_256=$(docker images --no-trunc --quiet relizatest/throw:latest)
+                    '''
+                    script {
+                        env.DOCKER_SHA_256 = sh(script: 'docker images --no-trunc --quiet relizatest/throw:latest', returnStdout: true)
+                        env.BUILD_END_TIME = sh(script: 'date -Iseconds', returnStdout: true).trim()
+                    }
+                }
+            }
+        }
+    }
+    post {
+        failure {
+            container ('dind') {
+                script {
+                    env.STATUS = 'rejected'
+                }
+            }
+        }
+        always {
+            container ('dind') {
+                reliza(uri: 'https://test.relizahub.com') {
                     echo "Version is ${env.VERSION}"
+                    addRelease("Xenogents/mafia-vue")
                 }
             }
         }
@@ -106,7 +159,7 @@ pipeline {
 }
 ```
 
-Credentials that were set beforehand are set as environment variables to be used later. In this case I chose the identifying ID in 3.2 as PROJECT_API and ORG_API. The wrapper calls Reliza Hub to get version details and then propagates those version details onto enclosed Reliza steps to submit build information to Reliza Hub.
+Credentials that were set beforehand are set as environment variables to be used later. In this case I chose the identifying ID in 3.2 as PROJECT_API and ORG_API. The image is built and the reliza wrapper calls Reliza Hub to get version details in order to submit build information to Reliza Hub.
 
 ## Resources on pipelines and writing plugins
 https://www.jenkins.io/doc/book/pipeline/syntax/  
