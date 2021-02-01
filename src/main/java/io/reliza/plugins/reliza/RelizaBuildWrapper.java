@@ -74,8 +74,8 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
             Flags flags = Flags.builder().apiKeyId(apiKeyId)
                     .apiKey(apiKey)
                     .projectId(UUID(projectId, listener))
-                    .branch("ho").build();
-            if (uri != null) {flags.setBaseUrl(uri);}  
+                    .branch(initialEnvironment.get("GIT_BRANCH")).build();
+            if (uri != null) {flags.setBaseUrl(uri);}
             Library library = new Library(flags);
             ProjectVersion projectVersion = library.getVersion();
             
