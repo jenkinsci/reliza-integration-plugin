@@ -1,18 +1,55 @@
 # reliza-jenkins-plugin
 
-## Introduction
+## Introduction (Integration with GitHub)
 
 Plugin will release new version and add release details to Reliza Hub when performing a push to GitHub, requires a Jenkins instance to use.
 
-//TODO: Will only work once reliza library is pushed to maven central and plugin is official.
+//TODO: Many steps can be taken out once reliza library is pushed to maven central and plugin is official.
 
-## 1. Getting started (Integration with GitHub):
+## 1. Installing plugins:
 
-Install docker and pipeline plugins, will need to restart server for installation to finish. <p>
-https://plugins.jenkins.io/workflow-aggregator/  
-https://plugins.jenkins.io/docker-build-publish/  
-https://plugins.jenkins.io/docker-plugin/  
-https://plugins.jenkins.io/docker-workflow/
+Until above TODO is finished, this step will be required.
+
+### 1.1 Install following software:
+
+- Apache Maven - https://maven.apache.org/download.cgi
+- Gradle - https://gradle.org/releases/
+
+For Windows you will need to add both /bin directories to Path
+
+### 1.2 Checkout git projects:
+
+- Reliza Java Client: https://github.com/relizaio/reliza-java-client
+- Reliza Jenkins Plugin (this project): https://github.com/relizaio/reliza-jenkins-plugin
+
+### 1.3 Publish java client to maven local repository:
+
+Browse to root directory of reliza java client and enter the following line
+
+```
+gradle publishToMavenLocal
+```
+
+### 1.4 Installing reliza jenkins plugin:
+Browse to root directory of reliza jenkins plugin and enter the following line
+
+```
+mvn install
+```
+
+### 1.5 Adding plugins to Jenkins instance:
+
+From Jenkins instance, go to: Manage Jenkins -> Manage Plugins -> Advanced -> Upload Plugin -> Choose File
+
+Now browse to reliza jenkins plugin root directory and go to: target -> reliza-jenkins-plugin.hpi then click upload.
+
+Go back to Manage Plugins > Available and install these plugins: 
+- Pipeline - https://plugins.jenkins.io/workflow-aggregator/  
+- CloudBees Docker Build and Publish - https://plugins.jenkins.io/docker-build-publish/  
+- Docker - https://plugins.jenkins.io/docker-plugin/  
+- Docker Pipeline - https://plugins.jenkins.io/docker-workflow/
+
+You will need to restart the instance for the installations to take effect.
 
 ## 2. Setting up GitHub webhook:
 
@@ -24,41 +61,41 @@ Settings -> Webhooks -> Add webhook
 
 ### 2.2 Webhook configurations:
 
-In payload URL, put in the base url of your Jenkins instance appended by "/github-webhook/" <p>
+In payload URL, put in the base url of your Jenkins instance appended by "/github-webhook/"  
 
-Set content-type to application/json <p>
+Set content-type to application/json  
 
-Choose specific events for when you want to release details to reliza hub. Current plugins only support pushes, branches, and pull requests.
+Select just the push event for triggering the webhook.
 
 ## 3. Setting up reliza hub configurations:
 
 ### 3.1 Acquiring api key and id:
 
-Project Id: Go to reliza hub -> project -> chosen project -> click on padlock -> record given api key and id <p>
+Project API: Go to reliza hub -> project -> chosen project -> click on padlock -> record given api key and id  
 
-OR Org Id (will require project UUID): Go to reliza hub -> settings -> set org-wide read-write api key -> record given api key and id <p>
+OR Org API (will require project UUID): Go to reliza hub -> settings -> set org-wide read-write api key -> record given api key and id  
 
 ### 3.2 Storing in Jenkins:
 
-Go to Jenkins -> Manage Jenkins -> Manage Credentials -> Domains: (global) -> Add Credentials <p>
+Go to Jenkins -> Manage Jenkins -> Manage Credentials -> Domains: (global) -> Add Credentials  
 
-Kind should be set to Username with password and scope should be set to global. <p>
+Kind should be set to Username with password and scope should be set to global.  
 
 Input your api key id into username and api key into password, then set identifying ID to "RELIZA_API". 
 
 ## 4. Setting up Jenkins:
 
-You will have 2 options for configuring your pipeline, the first will be to directly input a pipeline script into the pipeline configurations and the second will be to create a Jenkinsfile in your project's root directory for Jenkins to read from. <p>
+You will have 2 options for configuring your pipeline, the first will be to directly input a pipeline script into the pipeline configurations and the second will be to create a Jenkinsfile in your project's root directory for Jenkins to read from.  
 
 Creating a Jenkinsfile allows you to update your pipeline without having to go to your Jenkins instance to reconfigure it.
 
 ### 4.1 Pipeline configurations:
 
-Go to Jenkins -> New Item -> Pipeline <p>
+Go to Jenkins -> New Item -> Pipeline  
 
-Check GitHub project and input your GitHub repository URL. <p>
-
-Under build triggers, check GitHub hook trigger for GITScm polling. <p>
+Check GitHub project and input your GitHub repository URL. 
+ 
+Under build triggers, check GitHub hook trigger for GITScm polling.  
 
 ### 4.2 Directly input pipeline script:
 
@@ -66,13 +103,13 @@ Under pipeline, select pipeline script and simply put in the pipeline script you
 
 ### 4.3 Create Jenkinsfile:
 
-Under pipeline, select pipeline script from SCM and put in your GitHub repository URL, if your repository is private you will need to put in credentials. <p>
+Under pipeline, select pipeline script from SCM and put in your GitHub repository URL, if your repository is private you will need to put in credentials.  
 
-Branches to build default is set to master and set script path to Jenkinsfile. <p>
+Branches to build default is set to master and set script path to Jenkinsfile.  
 
 The Jenkinsfile you create should contain only the pipeline script.
 
-## 5. Example pipeline:
+## 5. Example Pipeline/Jenkinsfile:
 
 ```
 pipeline {
