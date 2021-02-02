@@ -44,13 +44,13 @@ Go to Jenkins -> Manage Jenkins -> Manage Credentials -> Domains: (global) -> Ad
 
 Kind should be set to Username with password and scope should be set to global. <p>
 
-Input your api key id into username and api key into password, then choose identifying ID.
+Input your api key id into username and api key into password, then set identifying ID to "RELIZA_API". 
 
 ## 4. Setting up Jenkins:
 
 You will have 2 options for configuring your pipeline, the first will be to directly input a pipeline script into the pipeline configurations and the second will be to create a Jenkinsfile in your project's root directory for Jenkins to read from. <p>
 
-Creating a Jenkinsfile allows you to update your pipeline without having to reconfigure it in your Jenkins instance.
+Creating a Jenkinsfile allows you to update your pipeline without having to go to your Jenkins instance to reconfigure it.
 
 ### 4.1 Pipeline configurations:
 
@@ -101,29 +101,14 @@ spec:
 """
         }
     }
+    environment { RELIZA_API = credentials('RELIZA_API') }
     stages {
-        stage('Set Environment') {
-            steps {
-                script {
-                    env.BUILD_START_TIME = sh(script: 'date -Iseconds', returnStdout: true).trim()
-                    env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
-                    try {
-                        withCredentials([usernamePassword(credentialsId: 'PROJECT_API', usernameVariable: 'PROJECT_API_ID', passwordVariable: 'PROJECT_API_KEY')]){
-                            env.PROJECT_API_ID = "${PROJECT_API_ID}"
-                            env.PROJECT_API_KEY = "${PROJECT_API_KEY}"  
-                        }
-                    } catch (Exception e) {}
-                    try{
-                        withCredentials([usernamePassword(credentialsId: "ORG_API", usernameVariable: "ORG_API_ID", passwordVariable: "ORG_API_KEY")]) {
-                            env.ORG_API_ID = "${ORG_API_ID}"
-                            env.ORG_API_KEY = "${ORG_API_KEY}"
-                        }
-                    } catch (Exception e) {}
-                }
-            }
-        }
         stage('Build Image') {
             steps {
+                script {
+                    env.BUILD_START_TIME = sh(script: 'date -Iseconds', returnStdout: true).trim() 
+                    env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
+                }
                 container('dind') {
                     sh '''
                         docker build -t relizatest/throw .
@@ -141,14 +126,14 @@ spec:
     }
     post {
         failure {
-            container ('dind') {
+            container('dind') {
                 script {
                     env.STATUS = 'rejected'
                 }
             }
         }
         always {
-            container ('dind') {
+            container('dind') {
                 reliza(uri: 'https://test.relizahub.com') {
                     echo "Version is ${env.VERSION}"
                     addRelease("Xenogents/mafia-vue")
@@ -159,7 +144,7 @@ spec:
 }
 ```
 
-Credentials that were set beforehand are set as environment variables to be used later. In this case I chose the identifying ID in 3.2 as PROJECT_API and ORG_API. The image is built and the reliza wrapper calls Reliza Hub to get version details in order to submit build information to Reliza Hub.
+Credentials that were set beforehand are set as environment variables to be used later. In this case I chose the identifying ID in 3.2 as RELIZA_API. The image is built and the reliza wrapper calls Reliza Hub to get version details in order to submit build information to Reliza Hub.
 
 ## Resources on pipelines and writing plugins
 https://www.jenkins.io/doc/book/pipeline/syntax/  

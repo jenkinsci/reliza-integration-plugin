@@ -51,7 +51,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
     /**
      * {@inheritDoc} <p>
      * Retrieves preset credentials and parameters to perform getVersion api call and then sets
-     * them as environment variables to perform subsequent addRelease call
+     * recieved information as environment variables to pass to subsequent addRelease call
      */
     @Override
      public void setUp(Context context, Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
@@ -60,19 +60,9 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
                 this.setUp(context, build, listener, initialEnvironment);
                 return;
             }
-            listener.getLogger().println("setting up reliza context wrapper \n");
-            String apiKeyId;
-            String apiKey;
-            if (initialEnvironment.get("PROJECT_API_ID") != null && initialEnvironment.get("PROJECT_API_KEY") != null) {
-                apiKeyId = initialEnvironment.get("PROJECT_API_ID");
-                apiKey = initialEnvironment.get("PROJECT_API_KEY");
-            } else {
-                apiKeyId = initialEnvironment.get("ORG_API_ID");
-                apiKey = initialEnvironment.get("ORG_API_KEY"); 
-            }
-            
-            Flags flags = Flags.builder().apiKeyId(apiKeyId)
-                    .apiKey(apiKey)
+            listener.getLogger().println("setting up reliza context wrapper \n");  
+            Flags flags = Flags.builder().apiKeyId(initialEnvironment.get("RELIZA_API_USR"))
+                    .apiKey(initialEnvironment.get("RELIZA_API_PSW"))
                     .projectId(UUID(projectId, listener))
                     .branch(initialEnvironment.get("GIT_BRANCH")).build();
             if (uri != null) {flags.setBaseUrl(uri);}
@@ -82,8 +72,6 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
             context.env("VERSION", projectVersion.getVersion());
             context.env("URI", uri);
             context.env("PROJECT_ID", projectId);
-            context.env("API_KEY_ID", apiKeyId);
-            context.env("API_KEY", apiKey);
             
             // throw new AbstractMethodError("Unless a build wrapper is marked as not requiring a workspace context, you must implement the overload of the setUp() method that takes both a workspace and a launcher.");
         }

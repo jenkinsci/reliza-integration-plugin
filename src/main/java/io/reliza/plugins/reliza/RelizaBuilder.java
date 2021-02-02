@@ -32,8 +32,8 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 
     @Override
     public void perform(Run<?, ?> run, FilePath workspace, EnvVars envVars, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
-        FlagsBuilder flagsBuilder = Flags.builder().apiKeyId(envVars.get("API_KEY_ID"))
-                .apiKey(envVars.get("API_KEY"))
+        FlagsBuilder flagsBuilder = Flags.builder().apiKeyId(envVars.get("RELIZA_API_USR"))
+                .apiKey(envVars.get("RELIZA_API_PSW"))
                 .branch(envVars.get("GIT_BRANCH"))
                 .version(envVars.get("VERSION"))
                 .status(envVars.get("STATUS"))
