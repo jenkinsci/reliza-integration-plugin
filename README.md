@@ -140,25 +140,27 @@ spec:
     }
     environment { RELIZA_API = credentials('RELIZA_API') }
     stages {
-        stage('Build Image') {
+        stage ('Build and Deploy') {
             steps {
-                reliza(uri: 'https://test.relizahub.com') {
-                    echo "Version is ${env.VERSION}"
+                reliza (uri: 'https://test.relizahub.com') {
                     script {
-                        env.BUILD_START_TIME = sh(script: 'date -Iseconds', returnStdout: true).trim() 
-                        env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
-                        container('dind') {
-                            sh '''
-                                docker build -t relizatest/throw .
-                                docker login -u relizatest -p 9557ef8b-3ac3-4a2e-b351-a412d52d88d9
-                                docker push relizatest/throw
-                                DOCKER_SHA_256=$(docker images --no-trunc --quiet relizatest/throw:latest)
-                            '''
-                            env.DOCKER_SHA_256 = sh(script: 'docker images --no-trunc --quiet relizatest/throw:latest', returnStdout: true)
-                            env.BUILD_END_TIME = sh(script: 'date -Iseconds', returnStdout: true).trim()
+                        try {
+                            env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
+                            container('dind') {
+                                sh '''
+                                    docker build -t relizatest/throw .
+                                    docker login -u relizatest -p 9557ef8b-3ac3-4a2e-b351-a412d52d88d9
+                                    docker push relizatest/throw
+                                    DOCKER_SHA_256=$(docker images --no-trunc --quiet relizatest/throw:latest)
+                                '''
+                                env.DOCKER_SHA_256 = sh(script: 'docker images --no-trunc --quiet relizatest/throw:latest', returnStdout: true)
+                            }
+                        } catch (Exception e) {
+                            env.STATUS = 'rejected'
+                            echo 'FAILED BUILD: ' + e.toString()
                         }
+                        addRelease("relizatest/throw")
                     }
-                    addRelease("Xenogents/mafia-vue")
                 }
             }
         }
