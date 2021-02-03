@@ -1,6 +1,7 @@
 package io.reliza.plugins.reliza;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.jenkinsci.Symbol;
@@ -21,15 +22,14 @@ import reliza.java.client.Library;
 import reliza.java.client.responses.ProjectVersion;
 
 /**
- * An extension of {@link SimpleBuildWrapper} which sets up the reliza wrapper to perform
- * the api call to reliza hub.
+ * An extension of {@link SimpleBuildWrapper} which sets up the reliza wrapper to perform api calls to reliza hub.
  */
 public class RelizaBuildWrapper extends SimpleBuildWrapper {
     private String projectId;
     private String uri;
     
     /**
-     * Sets up required parameters from buildwrapper initialization (currently no required parameters).
+     * Sets up the required parameters from buildwrapper initialization (currently no required parameters).
      */
     @DataBoundConstructor
     public RelizaBuildWrapper() {
@@ -60,7 +60,8 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
                 this.setUp(context, build, listener, initialEnvironment);
                 return;
             }
-            listener.getLogger().println("setting up reliza context wrapper \n");  
+            listener.getLogger().println("setting up reliza context wrapper"); 
+            context.env("BUILD_START_TIME", Instant.now().toString());
             Flags flags = Flags.builder().apiKeyId(initialEnvironment.get("RELIZA_API_USR"))
                     .apiKey(initialEnvironment.get("RELIZA_API_PSW"))
                     .projectId(UUID(projectId, listener))
@@ -69,6 +70,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
             Library library = new Library(flags);
             ProjectVersion projectVersion = library.getVersion();
             
+            listener.getLogger().println("Version is: " + projectVersion.getVersion().toString());
             context.env("VERSION", projectVersion.getVersion());
             context.env("URI", uri);
             context.env("PROJECT_ID", projectId);
@@ -85,11 +87,6 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
             load();
         }
         
-        @Override
-        public String getDisplayName() {
-            return "reliza wrapper";
-        }
-
         @Override
         public boolean isApplicable(final AbstractProject<?, ?> item) {
           return true;

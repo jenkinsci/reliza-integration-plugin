@@ -1,6 +1,7 @@
 package io.reliza.plugins.reliza;
 
 import java.io.IOException;
+import java.time.Instant;
 
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -22,14 +23,24 @@ import reliza.java.client.Library;
 
 //TODO: Several methods which their uses are currently unknown and have no docs.
 
+/**
+ * Defines the addRelease function to be used within the reliza wrapper to make an api call to reliza hub.
+ */
 public class RelizaBuilder extends Builder implements SimpleBuildStep {
     String artId;
     
+    /**
+     * Sets up the required parameters from buildwrapper initialization.
+     * @param artId - Artifact identifier for labelling what your artifact should be called.
+     */
     @DataBoundConstructor
     public RelizaBuilder(String artId) {
         this.artId = artId;
     }
 
+    /**
+     * Extracts project details from environment variables to send release metadata to reliza hub.
+     */
     @Override
     public void perform(Run<?, ?> run, FilePath workspace, EnvVars envVars, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
         FlagsBuilder flagsBuilder = Flags.builder().apiKeyId(envVars.get("RELIZA_API_USR"))
@@ -47,11 +58,12 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
                 .artCiMeta("Jenkins " + envVars.get("BUILD_URL"))
                 .artType("Docker")
                 .dateStart(envVars.get("BUILD_START_TIME"))
-                .dateEnd(envVars.get("BUILD_END_TIME"))
+                .dateEnd(Instant.now().toString())
                 .artDigests(envVars.get("DOCKER_SHA_256"));
         if (envVars.get("URI") != null) {flagsBuilder.baseUrl(envVars.get("URI"));}
         Flags flags = flagsBuilder.build();
         Library library = new Library(flags);
+        listener.getLogger().println("sending release metadata"); 
         library.addRelease();
     }
 
