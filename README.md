@@ -168,7 +168,7 @@ spec:
 }
 ```
 
-Credentials that were set beforehand are set as environment variables to be used later. In this case I chose the identifying ID in 3.2 as RELIZA_API. The image is built and the reliza wrapper calls Reliza Hub to get version details in order to submit build information to Reliza Hub.
+Credentials set beforehand are set as environment variables, reliza wrapper then calls Reliza Hub to get version details, pipeline reads from Dockerfile to build image and push to Docker Hub, and finally release information is collected through backend to be pushed to Reliza Hub.
 
 ## Resources on pipelines and writing plugins
 https://www.jenkins.io/doc/book/pipeline/syntax/  

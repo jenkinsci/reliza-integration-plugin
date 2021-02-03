@@ -21,8 +21,6 @@ import reliza.java.client.Flags;
 import reliza.java.client.Flags.FlagsBuilder;
 import reliza.java.client.Library;
 
-//TODO: Several methods which their uses are currently unknown and have no docs.
-
 /**
  * Defines the addRelease function to be used within the reliza wrapper to make an api call to reliza hub.
  */
