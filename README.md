@@ -103,11 +103,3 @@ https://github.com/jenkinsci/workflow-step-api-plugin/blob/master/README.md
 https://github.com/jenkinsci/workflow-basic-steps-plugin/blob/master/CORE-STEPS.md  
 https://blog.codecentric.de/en/2012/08/tutorial-create-a-jenkins-plugin-to-integrate-jenkins-and-nexus-repository/  
 http://javaadventure.blogspot.com/2008/04/writing-hudson-plugin-part-6-parsing.html  
-
-## Contributing
-
-1. Fork it
-2. Create your feature branch (git checkout -b my-new-feature)
-3. Commit your changes (git commit -m 'feat: Added some feature')
-4. Push to the branch (git push origin my-new-feature)
-5. Create a new Pull Request
