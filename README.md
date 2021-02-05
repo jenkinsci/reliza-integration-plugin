@@ -64,7 +64,7 @@ spec:
                             container('dind') {
                                 sh '''
                                     docker build -t relizatest/throw .
-                                    docker login -u relizatest -p 9557ef8b-3ac3-4a2e-b351-a412d52d88d9
+                                    docker login -u USERNAME -p PASSWORD
                                     docker push relizatest/throw
                                     DOCKER_SHA_256=$(docker images --no-trunc --quiet relizatest/throw:latest)
                                 '''
