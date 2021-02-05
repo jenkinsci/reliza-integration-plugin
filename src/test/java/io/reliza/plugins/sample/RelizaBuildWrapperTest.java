@@ -8,11 +8,17 @@ import hudson.model.FreeStyleProject;
 import hudson.EnvVars;
 import io.reliza.plugins.reliza.RelizaBuildWrapper;
 
+/**
+ * Class for testing reliza build wrapper.
+ */
 public class RelizaBuildWrapperTest {
-
+    
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
-
+    
+    /**
+     * Simple test to make sure wrapper can perform api calls to reliza hub.
+     */
     @Test
     public void testRelizaWrapper() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();

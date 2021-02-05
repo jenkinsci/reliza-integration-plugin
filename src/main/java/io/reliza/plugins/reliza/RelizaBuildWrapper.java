@@ -29,7 +29,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
     private String uri;
     
     /**
-     * Sets up the required parameters from buildwrapper initialization (currently no required parameters).
+     * Buildwrapper initialization with no required parameters.
      */
     @DataBoundConstructor
     public RelizaBuildWrapper() {
@@ -51,32 +51,30 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
     /**
      * {@inheritDoc} <p>
      * Retrieves preset credentials and parameters to perform getVersion api call and then sets
-     * received information as environment variables to pass to subsequent addRelease call
+     * received information as environment variables to pass to subsequent addRelease call.
      */
     @Override
-     public void setUp(Context context, Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
-            //If this does not require a workspace, defer to the version that does not take a workspace and launcher.
-            if (!this.requiresWorkspace()) {
-                this.setUp(context, build, listener, initialEnvironment);
-                return;
-            }
-            listener.getLogger().println("setting up reliza context wrapper"); 
-            context.env("BUILD_START_TIME", Instant.now().toString());
-            Flags flags = Flags.builder().apiKeyId(initialEnvironment.get("RELIZA_API_USR"))
-                .apiKey(initialEnvironment.get("RELIZA_API_PSW"))
-                .projectId(UUID(projectId, listener))
-                .branch(initialEnvironment.get("GIT_BRANCH")).build();
-            if (uri != null) {flags.setBaseUrl(uri);}
-            Library library = new Library(flags);
-            ProjectVersion projectVersion = library.getVersion();
-            
-            listener.getLogger().println("Version is: " + projectVersion.getVersion().toString());
-            context.env("VERSION", projectVersion.getVersion());
-            context.env("URI", uri);
-            context.env("PROJECT_ID", projectId);
-            
-            //throw new AbstractMethodError("Unless a build wrapper is marked as not requiring a workspace context, you must implement the overload of the setUp() method that takes both a workspace and a launcher.");
+    public void setUp(Context context, Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
+        //If this does not require a workspace, defer to the version that does not take a workspace and launcher.
+        if (!this.requiresWorkspace()) {
+            this.setUp(context, build, listener, initialEnvironment);
+            return;
         }
+        listener.getLogger().println("setting up reliza context wrapper"); 
+        context.env("BUILD_START_TIME", Instant.now().toString());
+        Flags flags = Flags.builder().apiKeyId(initialEnvironment.get("RELIZA_API_USR"))
+            .apiKey(initialEnvironment.get("RELIZA_API_PSW"))
+            .projectId(UUID(projectId, listener))
+            .branch(initialEnvironment.get("GIT_BRANCH")).build();
+        if (uri != null) {flags.setBaseUrl(uri);}
+        Library library = new Library(flags);
+        ProjectVersion projectVersion = library.getVersion();
+        
+        listener.getLogger().println("Version is: " + projectVersion.getVersion().toString());
+        context.env("VERSION", projectVersion.getVersion());
+        context.env("URI", uri);
+        context.env("PROJECT_ID", projectId);
+    }
     
     @Symbol("reliza")
     @Extension
@@ -89,7 +87,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
         
         @Override
         public boolean isApplicable(final AbstractProject<?, ?> item) {
-          return true;
+            return true;
         }
     }
     

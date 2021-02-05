@@ -1,115 +1,30 @@
-# reliza-jenkins-plugin
+# Reliza integration with Jenkins
 
-## Introduction (Integration with GitHub)
+## Plugin use
 
-Plugin will release new version and add release details to Reliza Hub when performing a push to GitHub, requires a Jenkins instance to use.
+Plugin integrates itself with Reliza Hub (https://app.relizahub.com), allowing you to automatically set new releases through your Jenkinsfile. More information on how to use Reliza Hub here https://www.youtube.com/watch?v=yDlf5fMBGuI
 
-//TODO: Many steps can be taken out once reliza library is pushed to maven central and plugin is official.
+## Setting Reliza Hub credentials
 
-## 1. Installing plugins:
+For the plugin to interact with Reliza Hub you will need to set up credentials on your Jenkins instance.
 
-Until above TODO is finished, this step will be required.
+### Acquiring api key and id
 
-### 1.1 Install following software:
+Project API: Go to reliza hub -> project -> project you wish to integrate -> click on padlock -> record given api key and id
 
-- Apache Maven - https://maven.apache.org/download.cgi
-- Gradle - https://gradle.org/releases/
+OR Org API (will require project ID): Go to reliza hub -> settings -> set org-wide read-write api key -> record given api key and id
 
-For Windows you will need to add both /bin directories to Path
+Project ID (if using Org API): Go to reliza hub -> project -> project you wish to integrate -> click on wrench -> record UUID
 
-### 1.2 Checkout git projects:
+### Storing in Jenkins
 
-- Reliza Java Client: https://github.com/relizaio/reliza-java-client
-- Reliza Jenkins Plugin (this project): https://github.com/relizaio/reliza-jenkins-plugin
+Go to Jenkins instance -> Manage Jenkins -> Manage Credentials -> Domains: (global) -> Add Credentials
 
-### 1.3 Publish java client to maven local repository:
+Kind should be set to Username with password and scope should be set to global.
 
-Browse to root directory of reliza java client and enter the following line
+Input your api key id into username and api key into password, then set identifying ID to "RELIZA_API", description can be anything.
 
-```
-gradle publishToMavenLocal
-```
-
-### 1.4 Installing reliza jenkins plugin:
-Browse to root directory of reliza jenkins plugin and enter the following line
-
-```
-mvn install
-```
-
-### 1.5 Adding plugins to Jenkins instance:
-
-From Jenkins instance, go to: Manage Jenkins -> Manage Plugins -> Advanced -> Upload Plugin -> Choose File
-
-Now browse to reliza jenkins plugin root directory and go to: target -> reliza-jenkins-plugin.hpi then click upload.
-
-Go back to Manage Plugins > Available and install these plugins: 
-- Pipeline - https://plugins.jenkins.io/workflow-aggregator/  
-- CloudBees Docker Build and Publish - https://plugins.jenkins.io/docker-build-publish/  
-- Docker - https://plugins.jenkins.io/docker-plugin/  
-- Docker Pipeline - https://plugins.jenkins.io/docker-workflow/
-
-You will need to restart the instance for the installations to take effect.
-
-## 2. Setting up GitHub webhook:
-
-Go to the selected GitHub repository with which you wish to integrate with reliza hub.
-
-### 2.1 Create new webhook:
-
-Settings -> Webhooks -> Add webhook
-
-### 2.2 Webhook configurations:
-
-In payload URL, put in the base url of your Jenkins instance appended by "/github-webhook/"  
-
-Set content-type to application/json  
-
-Select just the push event for triggering the webhook.
-
-## 3. Setting up reliza hub configurations:
-
-### 3.1 Acquiring api key and id:
-
-Project API: Go to reliza hub -> project -> chosen project -> click on padlock -> record given api key and id  
-
-OR Org API (will require project UUID): Go to reliza hub -> settings -> set org-wide read-write api key -> record given api key and id  
-
-### 3.2 Storing in Jenkins:
-
-Go to Jenkins -> Manage Jenkins -> Manage Credentials -> Domains: (global) -> Add Credentials  
-
-Kind should be set to Username with password and scope should be set to global.  
-
-Input your api key id into username and api key into password, then set identifying ID to "RELIZA_API". 
-
-## 4. Setting up Jenkins:
-
-You will have 2 options for configuring your pipeline, the first will be to directly input a pipeline script into the pipeline configurations and the second will be to create a Jenkinsfile in your project's root directory for Jenkins to read from.  
-
-Creating a Jenkinsfile allows you to update your pipeline without having to go to your Jenkins instance to reconfigure it.
-
-### 4.1 Pipeline configurations:
-
-Go to Jenkins -> New Item -> Pipeline  
-
-Check GitHub project and input your GitHub repository URL. 
- 
-Under build triggers, check GitHub hook trigger for GITScm polling.  
-
-### 4.2 Directly input pipeline script:
-
-Under pipeline, select pipeline script and simply put in the pipeline script you want to be run.
-
-### 4.3 Create Jenkinsfile:
-
-Under pipeline, select pipeline script from SCM and put in your GitHub repository URL, if your repository is private you will need to put in credentials.  
-
-Branches to build default is set to master and set script path to Jenkinsfile.  
-
-The Jenkinsfile you create should contain only the pipeline script.
-
-## 5. Example Pipeline/Jenkinsfile:
+## Example Jenkinsfile/Pipeline usage
 
 ```
 pipeline {
@@ -159,7 +74,7 @@ spec:
                             env.STATUS = 'rejected'
                             echo 'FAILED BUILD: ' + e.toString()
                         }
-                        addRelease("relizatest/throw")
+                        addRelease(artId: "relizatest/throw")
                     }
                 }
             }
@@ -168,7 +83,13 @@ spec:
 }
 ```
 
-Credentials set beforehand are set as environment variables, reliza wrapper then calls Reliza Hub to get version details, pipeline reads from Dockerfile to build image and push to Docker Hub, and finally release information is collected through backend to be pushed to Reliza Hub.
+1. Credentials set beforehand in Jenkins instance are set as environment variables for plugin to read.
+
+2. Reliza wrapper is called with 2 optional parameters uri and projectId. Base uri is preset to https://app.relizahub.com and projectId is only required if using ORG wide api. Wrapper calls Reliza Hub to get new version to be released.
+
+3. Jenkinsfile reads from repository Dockerfile to build the image and push to Docker Hub, then sets certain values as environment variables for the plugin to read and send to Reliza Hub.
+
+4. addRelease method can only be called within Reliza wrapper and will send release details to Reliza Hub. Method has 1 optional parameter artId (image name) which is only required when building an image.
 
 ## Resources on pipelines and writing plugins
 https://www.jenkins.io/doc/book/pipeline/syntax/  
@@ -185,7 +106,8 @@ http://javaadventure.blogspot.com/2008/04/writing-hudson-plugin-part-6-parsing.h
 
 ## Contributing
 
-TODO review the default [CONTRIBUTING](https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md) file and make sure it is appropriate for your plugin, if not then add your own one adapted from the base file
-
-Refer to our [contribution guidelines](https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md)
-
+1. Fork it
+2. Create your feature branch (git checkout -b my-new-feature)
+3. Commit your changes (git commit -m 'feat: Added some feature')
+4. Push to the branch (git push origin my-new-feature)
+5. Create a new Pull Request

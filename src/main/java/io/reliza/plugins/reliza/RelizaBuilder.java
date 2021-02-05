@@ -19,32 +19,32 @@ import hudson.tasks.Builder;
 import jenkins.tasks.SimpleBuildStep;
 
 import reliza.java.client.Flags;
-import reliza.java.client.Flags.FlagsBuilder;
 import reliza.java.client.Library;
 
 /**
- * Defines the addRelease function to be used within the reliza wrapper to make an api call to reliza hub.
+ * Uses the addRelease method from reliza library within the reliza wrapper to send release details to reliza hub.
  */
 public class RelizaBuilder extends Builder implements SimpleBuildStep {
     String artId;
     
     /**
-     * Buildwrapper initialization with no required parameters.
+     * Builder initialization with no required parameters.
      */
     @DataBoundConstructor
     public RelizaBuilder() {}
     
     /**
-     * Sets up optional parameters from buildwrapper initialization.
+     * Optional parameters for buildwrapper initialization.
      * @param uri - Base uri of api call, default set to "https://app.relizahub.com".
      */
     @DataBoundSetter public void setArtId(String artId) {this.artId = artId;}
-
+    
     /**
      * Extracts project details from environment variables to send release metadata to reliza hub.
      */
     @Override
     public void perform(Run<?, ?> run, FilePath workspace, EnvVars envVars, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
+        listener.getLogger().println("sending release metadata");
         Flags flags = Flags.builder().apiKeyId(envVars.get("RELIZA_API_USR"))
             .apiKey(envVars.get("RELIZA_API_PSW"))
             .branch(envVars.get("GIT_BRANCH"))
@@ -65,10 +65,9 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
             .build();
         if (envVars.get("URI") != null) {flags.setBaseUrl(envVars.get("URI"));}
         Library library = new Library(flags);
-        listener.getLogger().println("sending release metadata"); 
         library.addRelease();
     }
-
+    
     @Symbol("addRelease")
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
