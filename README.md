@@ -10,11 +10,11 @@ For the plugin to interact with Reliza Hub you will need to set up credentials o
 
 ### Acquiring api key and id
 
-Project API: Go to reliza hub -> project -> project you wish to integrate -> click on padlock -> record given api key and id
+Project API: Go to Reliza Hub -> project -> project you wish to integrate -> click on padlock -> record given api key and id
 
-OR Org API (will require project ID): Go to reliza hub -> settings -> set org-wide read-write api key -> record given api key and id
+OR Org API (will require project ID): Go to Reliza Hub -> settings -> set org-wide read-write api key -> record given api key and id
 
-Project ID (if using Org API): Go to reliza hub -> project -> project you wish to integrate -> click on wrench -> record UUID
+Project ID (if using Org API): Go to Reliza Hub -> project -> project you wish to integrate -> click on wrench -> record UUID
 
 ### Storing in Jenkins
 
@@ -26,7 +26,7 @@ Input your api key id into username and api key into password, then set identify
 
 ## Example Jenkinsfile/Pipeline usage
 
-```
+```groovy
 pipeline {
     agent {
         kubernetes {
@@ -85,11 +85,11 @@ spec:
 
 1. Credentials set beforehand in Jenkins instance are set as environment variables for plugin to read.
 
-2. Reliza wrapper is called with 2 optional parameters uri and projectId. Base uri is preset to https://app.relizahub.com and projectId is only required if using ORG wide api. Wrapper calls Reliza Hub to get new version to be released.
+2. *reliza* wrapper is called with two optional parameters **uri** and **projectId**. **uri** is defaulted to https://app.relizahub.com and **projectId** is only required if using ORG wide API. Wrapper calls Reliza Hub to get new version to be released.
 
 3. Jenkinsfile reads from repository Dockerfile to build the image and push to Docker Hub, then sets certain values as environment variables for the plugin to read and send to Reliza Hub.
 
-4. addRelease method can only be called within Reliza wrapper and will send release details to Reliza Hub. Method has 1 optional parameter artId (image name) which is only required when building an image.
+4. *addRelease* method can only be called within Reliza wrapper and will send release details to Reliza Hub. Method has one optional parameter **artId** (image name) which is only required when building an image.
 
 ## Resources on pipelines and writing plugins
 https://www.jenkins.io/doc/book/pipeline/syntax/  
