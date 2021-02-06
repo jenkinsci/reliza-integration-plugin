@@ -8,7 +8,7 @@
         <relativePath />
     </parent>
     <groupId>io.reliza</groupId>
-    <artifactId>reliza-jenkins-plugin</artifactId>
+    <artifactId>reliza-integration</artifactId>
     <version>${revision}${changelist}</version>
     <packaging>hpi</packaging>
     <properties>
