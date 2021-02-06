@@ -20,7 +20,7 @@
         <java.level>8</java.level>
     </properties>
     <name>Reliza</name>
-    <url>https://github.com/jenkinsci/${project.artifactId}</url>
+    <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
     
     <licenses>
         <license>
