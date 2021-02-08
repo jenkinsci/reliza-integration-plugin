@@ -55,9 +55,9 @@ spec:
     }
     environment { RELIZA_API = credentials('RELIZA_API') }
     stages {
-        stage ('Build and Deploy') {
+        stage('Build and Deploy') {
             steps {
-                reliza (uri: 'https://test.relizahub.com') {
+                withReliza(uri: 'https://test.relizahub.com') {
                     script {
                         try {
                             env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
@@ -74,7 +74,7 @@ spec:
                             env.STATUS = 'rejected'
                             echo 'FAILED BUILD: ' + e.toString()
                         }
-                        addRelease(artId: "relizatest/throw")
+                        addRelizaRelease(artId: "relizatest/throw")
                     }
                 }
             }
@@ -85,11 +85,11 @@ spec:
 
 1. Credentials set beforehand in Jenkins instance are set as environment variables for plugin to read.
 
-2. *reliza* wrapper is called with two optional parameters **uri** and **projectId**. **uri** is defaulted to https://app.relizahub.com and **projectId** is only required if using ORG wide API. Wrapper calls Reliza Hub to get new version to be released.
+2. *withReliza* wrapper is called with two optional parameters **uri** and **projectId**. **uri** is defaulted to https://app.relizahub.com and **projectId** is only required if using ORG wide API. Wrapper calls Reliza Hub to get new version to be released.
 
 3. Jenkinsfile reads from repository Dockerfile to build the image and push to Docker Hub, then sets certain values as environment variables for the plugin to read and send to Reliza Hub.
 
-4. *addRelease* method can only be called within Reliza wrapper and will send release details to Reliza Hub. Method has one optional parameter **artId** (image name) which is only required when building an image.
+4. *addRelizaRelease* method can only be called within Reliza wrapper and will send release details to Reliza Hub. Method has one optional parameter **artId** (image name) which is only required when building an image.
 
 ## Resources on pipelines and writing plugins
 https://www.jenkins.io/doc/book/pipeline/syntax/  

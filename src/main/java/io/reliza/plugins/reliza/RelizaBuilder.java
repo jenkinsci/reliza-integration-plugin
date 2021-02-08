@@ -68,7 +68,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
         library.addRelease();
     }
     
-    @Symbol("addRelease")
+    @Symbol("addRelizaRelease")
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
         @Override

@@ -76,7 +76,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
         context.env("PROJECT_ID", projectId);
     }
     
-    @Symbol("reliza")
+    @Symbol("withReliza")
     @Extension
     public static final class DescriptorImpl extends BuildWrapperDescriptor {
         
