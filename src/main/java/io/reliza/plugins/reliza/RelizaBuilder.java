@@ -34,8 +34,8 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
     public RelizaBuilder() {}
     
     /**
-     * Optional parameters for buildwrapper initialization.
-     * @param uri - Base uri of api call, default set to "https://app.relizahub.com".
+     * Optional parameters for builder initialization.
+     * @param artId - Id of created artifact, required only if building an artifact.
      */
     @DataBoundSetter public void setArtId(String artId) {this.artId = artId;}
     
