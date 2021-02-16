@@ -103,3 +103,9 @@ https://github.com/jenkinsci/workflow-step-api-plugin/blob/master/README.md
 https://github.com/jenkinsci/workflow-basic-steps-plugin/blob/master/CORE-STEPS.md  
 https://blog.codecentric.de/en/2012/08/tutorial-create-a-jenkins-plugin-to-integrate-jenkins-and-nexus-repository/  
 http://javaadventure.blogspot.com/2008/04/writing-hudson-plugin-part-6-parsing.html  
+
+## Changelog
+
+### Version 0.1.0 (Feb 12, 2021)
+
+-   Initial Release

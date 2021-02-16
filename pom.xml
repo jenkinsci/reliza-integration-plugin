@@ -20,7 +20,8 @@
         <java.level>8</java.level>
     </properties>
     <name>Reliza Integration</name>
-    <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+    <url>https://github.com/jenkinsci/${project.artifactId}-plugin/blob/main/README.md</url>
+    <description>This plugin integrates Jenkins with Reliza Hub</description>
     
     <licenses>
         <license>
