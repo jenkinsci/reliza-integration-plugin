@@ -106,6 +106,10 @@ http://javaadventure.blogspot.com/2008/04/writing-hudson-plugin-part-6-parsing.h
 
 ## Changelog
 
+### Version 0.1.1 (Feb 17, 2021)
+
+-   Modified plugin display 
+
 ### Version 0.1.0 (Feb 12, 2021)
 
 -   Initial Release
