@@ -57,7 +57,7 @@ spec:
     stages {
         stage('Build and Deploy') {
             steps {
-                withReliza(uri: 'https://test.relizahub.com') {
+                withReliza(uri: 'https://test.relizahub.com', onlyVersion: 'true') {
                     script {
                         try {
                             env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
@@ -85,11 +85,13 @@ spec:
 
 1. Credentials set beforehand in Jenkins instance are set as environment variables for plugin to read.
 
-2. *withReliza* wrapper is called with two optional parameters **uri** and **projectId**. **uri** is defaulted to https://app.relizahub.com and **projectId** is only required if using ORG wide API. Wrapper calls Reliza Hub to get new version to be released.
+2. *withReliza* wrapper is called with three optional parameters **uri**, **projectId**, and **onlyVersion**. **uri** is defaulted to https://app.relizahub.com, **projectId** is only required if using ORG wide API, and **onlyVersion** is for the ability to only create version info and skip the release. Wrapper will call Reliza Hub to get new version to be released.
 
-3. Jenkinsfile reads from repository Dockerfile to build the image and push to Docker Hub, then sets certain values as environment variables for the plugin to read and send to Reliza Hub.
+3. Jenkinsfile reads from repository Dockerfile to build the image and push to Docker Hub, then sets environment variables for the plugin to read and send to Reliza Hub.
 
-4. *addRelizaRelease* method can only be called within Reliza wrapper and will send release details to Reliza Hub. Method has one optional parameter **artId** (image name) which is only required when building an image.
+4. If build fails, status is set to rejected for sending release metadata.
+
+5. R*addRelizaRelease* method can only be called within Reliza wrapper and will send release details to Reliza Hub. Method has one optional parameter **artId** (image name) which is only required when building an image.
 
 ## Resources on pipelines and writing plugins
 https://www.jenkins.io/doc/book/pipeline/syntax/  
@@ -105,6 +107,11 @@ https://blog.codecentric.de/en/2012/08/tutorial-create-a-jenkins-plugin-to-integ
 http://javaadventure.blogspot.com/2008/04/writing-hudson-plugin-part-6-parsing.html  
 
 ## Changelog
+
+### Version 0.1.2 (Feb 23, 2021)
+
+-   Added onlyVersion flag for getVersion call
+-   Added plugin description
 
 ### Version 0.1.1 (Feb 17, 2021)
 

@@ -27,6 +27,7 @@ import reliza.java.client.responses.ProjectVersion;
 public class RelizaBuildWrapper extends SimpleBuildWrapper {
     private String projectId;
     private String uri;
+    private Boolean onlyVersion = false;
     
     /**
      * Buildwrapper initialization with no required parameters.
@@ -49,6 +50,12 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
     @DataBoundSetter public void setUri(String uri) {this.uri = uri;}
     
     /**
+     * Sets up optional parameters from buildwrapper initialization.
+     * @param onlyVersion - Flag to skip creation of the release.
+     */
+    @DataBoundSetter public void setOnlyVersion(String onlyVersion) { if (onlyVersion.equals("true")) { this.onlyVersion = true; }}
+    
+    /**
      * {@inheritDoc} <p>
      * Retrieves preset credentials and parameters to perform getVersion api call and then sets
      * received information as environment variables to pass to subsequent addRelease call.
@@ -60,12 +67,14 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
             this.setUp(context, build, listener, initialEnvironment);
             return;
         }
-        listener.getLogger().println("setting up reliza context wrapper"); 
+        listener.getLogger().println("setting up reliza context wrapper");
         context.env("BUILD_START_TIME", Instant.now().toString());
         Flags flags = Flags.builder().apiKeyId(initialEnvironment.get("RELIZA_API_USR"))
             .apiKey(initialEnvironment.get("RELIZA_API_PSW"))
             .projectId(UUID(projectId, listener))
-            .branch(initialEnvironment.get("GIT_BRANCH")).build();
+            .branch(initialEnvironment.get("GIT_BRANCH"))
+            .onlyVersion(onlyVersion)
+            .build();
         if (uri != null) {flags.setBaseUrl(uri);}
         Library library = new Library(flags);
         ProjectVersion projectVersion = library.getVersion();
