@@ -91,7 +91,7 @@ spec:
 
 4. If build fails, status is set to rejected for sending release metadata.
 
-5. R*addRelizaRelease* method can only be called within Reliza wrapper and will send release details to Reliza Hub. Method has one optional parameter **artId** (image name) which is only required when building an image.
+5. *addRelizaRelease* method can only be called within Reliza wrapper and will send release details to Reliza Hub. Method has one optional parameter **artId** (image name) which is only required when building an image.
 
 ## Resources on pipelines and writing plugins
 https://www.jenkins.io/doc/book/pipeline/syntax/  
