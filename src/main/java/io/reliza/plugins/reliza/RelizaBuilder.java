@@ -26,6 +26,7 @@ import reliza.java.client.Library;
  */
 public class RelizaBuilder extends Builder implements SimpleBuildStep {
     String artId;
+    String artType;
     
     /**
      * Builder initialization with no required parameters.
@@ -38,6 +39,12 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
      * @param artId - Id of created artifact, required only if building an artifact.
      */
     @DataBoundSetter public void setArtId(String artId) {this.artId = artId;}
+    
+    /**
+     * Optional parameters for builder initialization.
+     * @param artType - Type of created artifact.
+     */
+    @DataBoundSetter public void setArtType(String artType) {this.artType = artType;}
     
     /**
      * Extracts project details from environment variables to send release metadata to reliza hub.
@@ -57,11 +64,12 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
             .dateActual(envVars.get("COMMIT_TIME"))
             .artId(artId)
             .artBuildId(envVars.get("BUILD_NUMBER"))
-            .artCiMeta("Jenkins " + envVars.get("BUILD_URL"))
-            .artType("Docker")
+            .artBuildUri(envVars.get("RUN_DISPLAY_URL"))
+            .artCiMeta("Jenkins")
+            .artType(artType)
             .dateStart(envVars.get("BUILD_START_TIME"))
             .dateEnd(Instant.now().toString())
-            .artDigests(envVars.get("DOCKER_SHA_256"))
+            .artDigests(envVars.get("SHA_256"))
             .build();
         if (envVars.get("URI") != null) {flags.setBaseUrl(envVars.get("URI"));}
         Library library = new Library(flags);

@@ -4,7 +4,7 @@
 
 Plugin integrates itself with Reliza Hub (https://app.relizahub.com), allowing you to automatically set new releases through your Jenkinsfile. More information on how to use Reliza Hub here https://www.youtube.com/watch?v=yDlf5fMBGuI
 
-## Setting Reliza Hub credentials
+## Setting up instance
 
 For the plugin to interact with Reliza Hub you will need to set up credentials on your Jenkins instance.
 
@@ -18,11 +18,17 @@ Project ID (if using Org API): Go to Reliza Hub -> project -> project you wish t
 
 ### Storing in Jenkins
 
-Go to Jenkins instance -> Manage Jenkins -> Manage Credentials -> Domains: (global) -> Add Credentials
+Go to your Jenkins instance -> Manage Jenkins -> Manage Credentials -> Domains: (global) -> Add Credentials
 
 Kind should be set to Username with password and scope should be set to global.
 
 Input your api key id into username and api key into password, then set identifying ID to "RELIZA_API", description can be anything.
+
+### Blue Ocean
+
+In order for the plugin to link your build URL on Reliza Hub, the base URL of your Jenkins instance needs to be preset.
+
+Go to your Jenkins instance -> Manage Jenkins -> Configure System -> Jenkins URL -> put in URL
 
 ## Example Jenkinsfile/Pipeline usage
 
@@ -66,15 +72,15 @@ spec:
                                     docker build -t relizatest/throw .
                                     docker login -u USERNAME -p PASSWORD
                                     docker push relizatest/throw
-                                    DOCKER_SHA_256=$(docker images --no-trunc --quiet relizatest/throw:latest)
+                                    SHA_256=$(docker images --no-trunc --quiet relizatest/throw:latest)
                                 '''
-                                env.DOCKER_SHA_256 = sh(script: 'docker images --no-trunc --quiet relizatest/throw:latest', returnStdout: true)
+                                env.SHA_256 = sh(script: 'docker images --no-trunc --quiet relizatest/throw:latest', returnStdout: true)
                             }
                         } catch (Exception e) {
                             env.STATUS = 'rejected'
                             echo 'FAILED BUILD: ' + e.toString()
                         }
-                        addRelizaRelease(artId: "relizatest/throw")
+                        addRelizaRelease(artId: "relizatest/throw", artType: "Docker")
                     }
                 }
             }
@@ -91,7 +97,7 @@ spec:
 
 4. If build fails, status is set to rejected for sending release metadata.
 
-5. *addRelizaRelease* method can only be called within Reliza wrapper and will send release details to Reliza Hub. Method has one optional parameter **artId** (image name) which is only required when building an image.
+5. *addRelizaRelease* method can only be called within Reliza wrapper and will send release details to Reliza Hub. Method has two optional parameters **artId** (image name) and **artType** which are only required when building an image.
 
 ## Resources on pipelines and writing plugins
 https://www.jenkins.io/doc/book/pipeline/syntax/  
@@ -106,17 +112,6 @@ https://github.com/jenkinsci/workflow-basic-steps-plugin/blob/master/CORE-STEPS.
 https://blog.codecentric.de/en/2012/08/tutorial-create-a-jenkins-plugin-to-integrate-jenkins-and-nexus-repository/  
 http://javaadventure.blogspot.com/2008/04/writing-hudson-plugin-part-6-parsing.html  
 
-## Changelog
+## Version History
 
-### Version 0.1.2 (Feb 23, 2021)
-
--   Added onlyVersion flag for getVersion call
--   Added plugin description
-
-### Version 0.1.1 (Feb 17, 2021)
-
--   Modified plugin display 
-
-### Version 0.1.0 (Feb 12, 2021)
-
--   Initial Release
+See the [changelog](https://github.com/jenkinsci/reliza-integration-plugin/blob/main/CHANGELOG.md)
