@@ -2,6 +2,7 @@ package io.reliza.plugins.reliza;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Arrays;
 
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -62,7 +63,6 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
             .vcsType("git")
             .vcsUri(envVars.get("GIT_URL"))
             .dateActual(envVars.get("COMMIT_TIME"))
-            .artId(artId)
             .artBuildId(envVars.get("BUILD_NUMBER"))
             .artBuildUri(envVars.get("RUN_DISPLAY_URL"))
             .artCiMeta("Jenkins")
@@ -72,6 +72,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
             .artDigests(envVars.get("SHA_256"))
             .build();
         if (envVars.get("URI") != null) {flags.setBaseUrl(envVars.get("URI"));}
+        if (artId != null) {flags.setArtId(Arrays.asList(artId));}
         Library library = new Library(flags);
         library.addRelease();
     }
