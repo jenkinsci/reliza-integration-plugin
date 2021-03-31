@@ -63,7 +63,7 @@ spec:
     stages {
         stage('Build and Deploy') {
             steps {
-                withReliza(uri: 'https://test.relizahub.com', onlyVersion: 'true') {
+                withReliza(onlyVersion: 'true') {
                     script {
                         try {
                             env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
@@ -72,9 +72,8 @@ spec:
                                     docker build -t relizatest/throw .
                                     docker login -u USERNAME -p PASSWORD
                                     docker push relizatest/throw
-                                    SHA_256=$(docker images --no-trunc --quiet relizatest/throw:latest)
                                 '''
-                                env.SHA_256 = sh(script: 'docker images --no-trunc --quiet relizatest/throw:latest', returnStdout: true)
+                                env.SHA_256 = sh(script: 'docker inspect -f \'{{range .RepoDigests}}{{.}}{{end}}\' relizatest/throw:latest | cut -f 2 -d\'@\'', returnStdout: true)
                             }
                         } catch (Exception e) {
                             env.STATUS = 'rejected'
@@ -91,7 +90,7 @@ spec:
 
 1. Credentials set beforehand in Jenkins instance are set as environment variables for plugin to read.
 
-2. *withReliza* wrapper is called with three optional parameters **uri**, **projectId**, and **onlyVersion**. **uri** is defaulted to https://app.relizahub.com, **projectId** is only required if using ORG wide API, and **onlyVersion** is for the ability to only create version info and skip the release. Wrapper will call Reliza Hub to get new version to be released.
+2. *withReliza* wrapper is called with three optional parameters **uri**, **projectId**, and **onlyVersion**. **uri** is defaulted to https://app.relizahub.com, **projectId** is only required if using ORG wide API, and **onlyVersion** is for the ability to only create version info and skip the release. Wrapper will call Reliza Hub to get new version to be released. Version and docker safe version can then be accessed using **env.VERSION** and **env.DOCKER_VERSION** from inside the wrapper.
 
 3. Jenkinsfile reads from repository Dockerfile to build the image and push to Docker Hub, then sets environment variables for the plugin to read and send to Reliza Hub.
 

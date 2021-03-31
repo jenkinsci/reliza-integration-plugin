@@ -81,6 +81,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
         
         listener.getLogger().println("Version is: " + projectVersion.getVersion().toString());
         context.env("VERSION", projectVersion.getVersion());
+        context.env("DOCKER_VERSION", projectVersion.getDockerTagSafeVersion());
         context.env("URI", uri);
         context.env("PROJECT_ID", projectId);
     }
