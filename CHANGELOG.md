@@ -1,8 +1,12 @@
 ## Changelog
 
+### Version 0.1.4 (Mar 31, 2021)
+-   Errors in Jenkinsfile example
+-   Expose docker tag safe version as env variable
+
 ### Version 0.1.3 (Mar 8, 2021)
 
--   Pushes build URL to Reliza Hub
+-   Pushes build URI to Reliza Hub
 
 ### Version 0.1.2 (Feb 23, 2021)
 
