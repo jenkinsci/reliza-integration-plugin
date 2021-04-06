@@ -1,5 +1,9 @@
 ## Changelog
 
+### Version 0.1.5 (Apr 6, 2021)
+-   Parameters jenkinsVersionMeta, customVersionMeta, and customVersionModifier added to withReliza wrapper
+-   Status can be passed directly to addRelizaRelease method
+
 ### Version 0.1.4 (Mar 31, 2021)
 -   Errors in Jenkinsfile example
 -   Expose docker tag safe version as env variable

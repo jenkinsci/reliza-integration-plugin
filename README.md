@@ -40,8 +40,8 @@ Go to your Jenkins instance -> Manage Jenkins -> Configure System -> Jenkins URL
 * *addRelizaRelease*: This method can only be called within the withReliza wrapper and will send release details to Reliza Hub
     * artId: Parameter to specify artifact id
     * artType: Parameter to specify artifact type
-    * status: If needed, this parameter will set status and override previously set statuses
-* *COMMIT_TIME* and *SHA_256* are parameters set within script which *addRelizaRelease* will read when called
+    * status: If needed, this parameter will set status and override previously set status environment variables
+* *COMMIT_TIME*, *SHA_256*, and *STATUS* are parameters set within script which *addRelizaRelease* will read when called
 
 ## Example Jenkinsfile/Pipeline usage
 
@@ -76,7 +76,7 @@ spec:
     stages {
         stage('Build and Deploy') {
             steps {
-                withReliza(jenkinsVersionMeta: 'true', customVersionModifier: 'GitHub') {
+                withReliza(jenkinsVersionMeta: 'true', customVersionModifier: 'Test') {
                     script {
                         try {
                             env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
