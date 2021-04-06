@@ -27,6 +27,9 @@ import reliza.java.client.responses.ProjectVersion;
 public class RelizaBuildWrapper extends SimpleBuildWrapper {
     private String projectId;
     private String uri;
+    private Boolean metadata = false;
+    private String customMetadata;
+    private String modifier;
     private Boolean onlyVersion = false;
     
     /**
@@ -41,19 +44,53 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
      * Sets up optional parameters from buildwrapper initialization.
      * @param projectId - Project UUID obtainable from reliza hub.
      */
-    @DataBoundSetter public void setProjectId(String projectId) {this.projectId = projectId;}
+    @DataBoundSetter public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
     
     /**
      * Sets up optional parameters from buildwrapper initialization.
      * @param uri - Base uri of api call, default set to "https://app.relizahub.com".
      */
-    @DataBoundSetter public void setUri(String uri) {this.uri = uri;}
+    @DataBoundSetter public void setUri(String uri) {
+        this.uri = uri;
+    }
+    
+    /**
+     * Sets up optional parameters from buildwrapper initialization.
+     * @param metadata - if true, will set metadata flag on getversion call to Jenkins.
+     */
+    @DataBoundSetter public void setJenkinsVersionMeta(String metadata) {
+        if (metadata.toLowerCase().equals("true")) {
+            this.metadata = true;
+        }
+    }
+    
+    /**
+     * Sets up optional parameters from buildwrapper initialization.
+     * @param customMetadata - Sets custom version metadata and will override useJenkinsVersionMeta.
+     */
+    @DataBoundSetter public void setCustomVersionMeta(String customMetadata) {
+        this.customMetadata = customMetadata;
+    }
+    
+    /**
+     * Sets up optional parameters from buildwrapper initialization.
+     * @param modifier - will set modifier flag on getversion call
+     */
+    @DataBoundSetter public void setCustomVersionModifier(String modifier) {
+        this.modifier = modifier;
+    }
     
     /**
      * Sets up optional parameters from buildwrapper initialization.
      * @param onlyVersion - Flag to skip creation of the release.
      */
-    @DataBoundSetter public void setOnlyVersion(String onlyVersion) { if (onlyVersion.equals("true")) { this.onlyVersion = true; }}
+    @DataBoundSetter public void setOnlyVersion(String onlyVersion) {
+        if (onlyVersion.toLowerCase().equals("true")) {
+            this.onlyVersion = true;
+        }
+    }
     
     /**
      * {@inheritDoc} <p>
@@ -73,9 +110,17 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
             .apiKey(initialEnvironment.get("RELIZA_API_PSW"))
             .projectId(UUID(projectId, listener))
             .branch(initialEnvironment.get("GIT_BRANCH"))
+            .modifier(modifier)
             .onlyVersion(onlyVersion)
             .build();
-        if (uri != null) {flags.setBaseUrl(uri);}
+        if (uri != null) {
+            flags.setBaseUrl(uri);
+        }
+        if (customMetadata != null) {
+            flags.setMetadata(customMetadata);
+        } else if (metadata) {
+            flags.setMetadata(initialEnvironment.get("BUILD_NUMBER"));
+        }
         Library library = new Library(flags);
         ProjectVersion projectVersion = library.getVersion();
         

@@ -26,6 +26,7 @@ import reliza.java.client.Library;
  * Uses the addRelease method from reliza library within the reliza wrapper to send release details to reliza hub.
  */
 public class RelizaBuilder extends Builder implements SimpleBuildStep {
+    String status;
     String artId;
     String artType;
     
@@ -36,16 +37,28 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
     public RelizaBuilder() {}
     
     /**
-     * Optional parameters for builder initialization.
-     * @param artId - Id of created artifact, required only if building an artifact.
+     * Optional parameter for builder initialization.
+     * @param status - Used to override given status if needed.
      */
-    @DataBoundSetter public void setArtId(String artId) {this.artId = artId;}
+    @DataBoundSetter public void setStatus(String status) {
+        this.status = status;
+    }
     
     /**
-     * Optional parameters for builder initialization.
+     * Optional parameter for builder initialization.
+     * @param artId - Id of created artifact, required only if building an artifact.
+     */
+    @DataBoundSetter public void setArtId(String artId) {
+        this.artId = artId;
+    }
+    
+    /**
+     * Optional parameter for builder initialization.
      * @param artType - Type of created artifact.
      */
-    @DataBoundSetter public void setArtType(String artType) {this.artType = artType;}
+    @DataBoundSetter public void setArtType(String artType) {
+        this.artType = artType;
+    }
     
     /**
      * Extracts project details from environment variables to send release metadata to reliza hub.
@@ -71,8 +84,16 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
             .dateEnd(Instant.now().toString())
             .artDigests(envVars.get("SHA_256"))
             .build();
-        if (envVars.get("URI") != null) {flags.setBaseUrl(envVars.get("URI"));}
-        if (artId != null) {flags.setArtId(Arrays.asList(artId));}
+        if (envVars.get("URI") != null) {
+            flags.setBaseUrl(envVars.get("URI"));
+        }
+        if (artId != null) {
+            flags.setArtId(Arrays.asList(artId));
+        }
+        if (status != null) {
+            flags.setStatus(status);
+        }
+        
         Library library = new Library(flags);
         library.addRelease();
     }
