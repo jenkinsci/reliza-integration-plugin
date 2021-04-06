@@ -30,6 +30,19 @@ In order for the plugin to link your build URL on Reliza Hub, the base URL of yo
 
 Go to your Jenkins instance -> Manage Jenkins -> Configure System -> Jenkins URL -> put in URL
 
+## Available features
+* *withReliza*: Wrapper will call Reliza Hub to get new version to be released. Version and docker safe version can then be accessed using **env.VERSION** and **env.DOCKER_VERSION** from inside the wrapper
+    * uri: Uri is defaulted to https://app.relizahub.com but this parameter can override it if necessary
+    * projectId: Uuid of project required only if authenticating using an organization wide api
+    * jenkinsVersionMeta: If set to true, will set the metadata flag to the Jenkins build id
+    * customVersionMeta: Will set the metadata flag to a custom value and overrides jenkinsVersionMeta
+    * customVersionModifier Will set modifier flag to a custom value
+* *addRelizaRelease*: This method can only be called within the withReliza wrapper and will send release details to Reliza Hub
+    * artId: Parameter to specify artifact id
+    * artType: Parameter to specify artifact type
+    * status: If needed, this parameter will set status and override previously set statuses
+* *COMMIT_TIME* and *SHA_256* are parameters set within script which *addRelizaRelease* will read when called
+
 ## Example Jenkinsfile/Pipeline usage
 
 ```groovy
@@ -63,7 +76,7 @@ spec:
     stages {
         stage('Build and Deploy') {
             steps {
-                withReliza(onlyVersion: 'true') {
+                withReliza(jenkinsVersionMeta: 'true', customVersionModifier: 'GitHub') {
                     script {
                         try {
                             env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
@@ -87,16 +100,6 @@ spec:
     }
 }
 ```
-
-1. Credentials set beforehand in Jenkins instance are set as environment variables for plugin to read.
-
-2. *withReliza* wrapper is called with three optional parameters **uri**, **projectId**, and **onlyVersion**. **uri** is defaulted to https://app.relizahub.com, **projectId** is only required if using ORG wide API, and **onlyVersion** is for the ability to only create version info and skip the release. Wrapper will call Reliza Hub to get new version to be released. Version and docker safe version can then be accessed using **env.VERSION** and **env.DOCKER_VERSION** from inside the wrapper.
-
-3. Jenkinsfile reads from repository Dockerfile to build the image and push to Docker Hub, then sets environment variables for the plugin to read and send to Reliza Hub.
-
-4. If build fails, status is set to rejected for sending release metadata.
-
-5. *addRelizaRelease* method can only be called within Reliza wrapper and will send release details to Reliza Hub. Method has two optional parameters **artId** (image name) and **artType** which are only required when building an image.
 
 ## Resources on pipelines and writing plugins
 https://www.jenkins.io/doc/book/pipeline/syntax/  
