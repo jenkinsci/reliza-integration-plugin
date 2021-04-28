@@ -20,6 +20,7 @@ import jenkins.tasks.SimpleBuildWrapper;
 import reliza.java.client.Flags;
 import reliza.java.client.Library;
 import reliza.java.client.responses.ProjectVersion;
+import reliza.java.client.responses.ReleaseMetadata;
 
 /**
  * An extension of {@link SimpleBuildWrapper} which sets up the reliza wrapper to perform api calls to reliza hub.
@@ -104,6 +105,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
             this.setUp(context, build, listener, initialEnvironment);
             return;
         }
+        
         listener.getLogger().println("setting up reliza context wrapper");
         context.env("BUILD_START_TIME", Instant.now().toString());
         Flags flags = Flags.builder().apiKeyId(initialEnvironment.get("RELIZA_API_USR"))
@@ -113,18 +115,25 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
             .modifier(modifier)
             .onlyVersion(onlyVersion)
             .build();
+        
         if (uri != null) {
             flags.setBaseUrl(uri);
         }
+        
         if (customMetadata != null) {
             flags.setMetadata(customMetadata);
         } else if (metadata) {
             flags.setMetadata(initialEnvironment.get("BUILD_NUMBER"));
         }
+        
         Library library = new Library(flags);
         ProjectVersion projectVersion = library.getVersion();
+        ReleaseMetadata releaseMetadata = library.getLatestRelease();
         
         listener.getLogger().println("Version is: " + projectVersion.getVersion().toString());
+        if (releaseMetadata != null && releaseMetadata.getSourceCodeEntryDetails() != null) {
+            context.env("LATEST_COMMIT", releaseMetadata.getSourceCodeEntryDetails().getCommit());
+        }
         context.env("VERSION", projectVersion.getVersion());
         context.env("DOCKER_VERSION", projectVersion.getDockerTagSafeVersion());
         context.env("URI", uri);
