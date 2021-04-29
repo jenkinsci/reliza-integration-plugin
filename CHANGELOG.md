@@ -1,5 +1,9 @@
 ## Changelog
 
+### Version 0.1.6 (Apr 29, 2021)
+
+-   Supports parameters commit message and commit list
+
 ### Version 0.1.5 (Apr 6, 2021)
 -   Parameters jenkinsVersionMeta, customVersionMeta, and customVersionModifier added to withReliza wrapper
 -   Status can be passed directly to addRelizaRelease method

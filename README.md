@@ -30,7 +30,7 @@ In order for the plugin to link your build URL on Reliza Hub, the base URL of yo
 
 Go to your Jenkins instance -> Manage Jenkins -> Configure System -> Jenkins URL -> put in URL
 
-## Available features
+## Available parameters
 * *withReliza*: Wrapper will call Reliza Hub to get new version to be released. Version and docker safe version can then be accessed using **env.VERSION** and **env.DOCKER_VERSION** from inside the wrapper
     * uri: Uri is defaulted to https://app.relizahub.com but this parameter can override it if necessary
     * projectId: Uuid of project required only if authenticating using an organization wide api
@@ -41,7 +41,12 @@ Go to your Jenkins instance -> Manage Jenkins -> Configure System -> Jenkins URL
     * artId: Parameter to specify artifact id
     * artType: Parameter to specify artifact type
     * status: If needed, this parameter will set status and override previously set status environment variables
-* *COMMIT_TIME*, *SHA_256*, and *STATUS* are parameters set within script which *addRelizaRelease* will read when called
+* Parameters set as environment variables which *addRelizaRelease* will read when called
+    * STATUS: Sets build status to a choice of either complete or rejected
+    * SHA_256: Sets sha256 of artifact
+    * COMMIT_TIME: Time of commit
+    * COMMIT_MESSAGE: Message of commit
+    * COMMIT_LIST: Base64 encoded list of commits since latest release, below example shows how to format
 
 ## Example Jenkinsfile/Pipeline usage
 
@@ -80,6 +85,10 @@ spec:
                     script {
                         try {
                             env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
+                            env.COMMIT_MESSAGE = sh(script: 'git log -1 --pretty=%s', returnStdout: true).trim()
+                            if (env.LATEST_COMMIT != "") {
+                                env.COMMIT_LIST = sh(script: 'git log $LATEST_COMMIT..$GIT_COMMIT --date=iso-strict --pretty="%H|||%ad|||%s" | base64 -w 0', returnStdout: true).trim()
+                            }
                             container('dind') {
                                 sh '''
                                     docker build -t relizatest/throw .
