@@ -26,151 +26,151 @@ import reliza.java.client.responses.ReleaseMetadata;
  * An extension of {@link SimpleBuildWrapper} which sets up the reliza wrapper to perform api calls to reliza hub.
  */
 public class RelizaBuildWrapper extends SimpleBuildWrapper {
-    private String projectId;
-    private String uri;
-    private Boolean metadata = false;
-    private String customMetadata;
-    private String modifier;
-    private Boolean onlyVersion = false;
-    
-    /**
-     * Buildwrapper initialization with no required parameters.
-     */
-    @DataBoundConstructor
-    public RelizaBuildWrapper() {
-        super();
-    }
-    
-    /**
-     * Sets up optional parameters from buildwrapper initialization.
-     * @param projectId - Project UUID obtainable from reliza hub.
-     */
-    @DataBoundSetter public void setProjectId(String projectId) {
-        this.projectId = projectId;
-    }
-    
-    /**
-     * Sets up optional parameters from buildwrapper initialization.
-     * @param uri - Base uri of api call, default set to "https://app.relizahub.com".
-     */
-    @DataBoundSetter public void setUri(String uri) {
-        this.uri = uri;
-    }
-    
-    /**
-     * Sets up optional parameters from buildwrapper initialization.
-     * @param metadata - if true, will set metadata flag on getversion call to Jenkins.
-     */
-    @DataBoundSetter public void setJenkinsVersionMeta(String metadata) {
-        if (metadata.toLowerCase().equals("true")) {
-            this.metadata = true;
-        }
-    }
-    
-    /**
-     * Sets up optional parameters from buildwrapper initialization.
-     * @param customMetadata - Sets custom version metadata and will override useJenkinsVersionMeta.
-     */
-    @DataBoundSetter public void setCustomVersionMeta(String customMetadata) {
-        this.customMetadata = customMetadata;
-    }
-    
-    /**
-     * Sets up optional parameters from buildwrapper initialization.
-     * @param modifier - will set modifier flag on getversion call
-     */
-    @DataBoundSetter public void setCustomVersionModifier(String modifier) {
-        this.modifier = modifier;
-    }
-    
-    /**
-     * Sets up optional parameters from buildwrapper initialization.
-     * @param onlyVersion - Flag to skip creation of the release.
-     */
-    @DataBoundSetter public void setOnlyVersion(String onlyVersion) {
-        if (onlyVersion.toLowerCase().equals("true")) {
-            this.onlyVersion = true;
-        }
-    }
-    
-    /**
-     * {@inheritDoc} <p>
-     * Retrieves preset credentials and parameters to perform getVersion api call and then sets
-     * received information as environment variables to pass to subsequent addRelease call.
-     */
-    @Override
-    public void setUp(Context context, Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
-        //If this does not require a workspace, defer to the version that does not take a workspace and launcher.
-        if (!this.requiresWorkspace()) {
-            this.setUp(context, build, listener, initialEnvironment);
-            return;
-        }
-        
-        listener.getLogger().println("setting up reliza context wrapper");
-        context.env("BUILD_START_TIME", Instant.now().toString());
-        Flags flags = Flags.builder().apiKeyId(initialEnvironment.get("RELIZA_API_USR"))
-            .apiKey(initialEnvironment.get("RELIZA_API_PSW"))
-            .projectId(UUID(projectId, listener))
-            .branch(initialEnvironment.get("GIT_BRANCH"))
-            .modifier(modifier)
-            .onlyVersion(onlyVersion)
-            .build();
-        
-        if (uri != null) {
-            flags.setBaseUrl(uri);
-        }
-        
-        if (customMetadata != null) {
-            flags.setMetadata(customMetadata);
-        } else if (metadata) {
-            flags.setMetadata(initialEnvironment.get("BUILD_NUMBER"));
-        }
-        
-        Library library = new Library(flags);
-        ProjectVersion projectVersion = library.getVersion();
-        ReleaseMetadata releaseMetadata = library.getLatestRelease();
-        
-        listener.getLogger().println("Version is: " + projectVersion.getVersion().toString());
-        if (releaseMetadata != null && releaseMetadata.getSourceCodeEntryDetails() != null) {
-            context.env("LATEST_COMMIT", releaseMetadata.getSourceCodeEntryDetails().getCommit());
-        }
-        context.env("VERSION", projectVersion.getVersion());
-        context.env("DOCKER_VERSION", projectVersion.getDockerTagSafeVersion());
-        context.env("URI", uri);
-        context.env("PROJECT_ID", projectId);
-    }
-    
-    @Symbol("withReliza")
-    @Extension
-    public static final class DescriptorImpl extends BuildWrapperDescriptor {
-        
-        public DescriptorImpl() {
-            super(RelizaBuildWrapper.class);
-            load();
-        }
-        
-        @Override
-        public boolean isApplicable(final AbstractProject<?, ?> item) {
-            return true;
-        }
-    }
-    
-    /**
-     * String to UUID converter which handles conversion errors.
-     * @param projectId - Project UUID.
-     * @param listener - TaskListener to log specific error.
-     * @return Corresponding UUID if conversion succeeded and null otherwise.
-     */
-    public static UUID UUID(String projectId, TaskListener listener) {
-        try {
-            if (projectId == null || projectId.isEmpty()) {
-                return null;
-            } else {
-                return UUID.fromString(projectId);
-            }
-        } catch (IllegalArgumentException e) {
-            listener.getLogger().println(e);
-            return null;
-        }
-    }
+	private String projectId;
+	private String uri;
+	private Boolean metadata = false;
+	private String customMetadata;
+	private String modifier;
+	private Boolean onlyVersion = false;
+	
+	/**
+	 * Buildwrapper initialization with no required parameters.
+	 */
+	@DataBoundConstructor
+	public RelizaBuildWrapper() {
+		super();
+	}
+	
+	/**
+	 * Sets up optional parameters from buildwrapper initialization.
+	 * @param projectId - Project UUID obtainable from reliza hub.
+	 */
+	@DataBoundSetter public void setProjectId(String projectId) {
+		this.projectId = projectId;
+	}
+	
+	/**
+	 * Sets up optional parameters from buildwrapper initialization.
+	 * @param uri - Base uri of api call, default set to "https://app.relizahub.com".
+	 */
+	@DataBoundSetter public void setUri(String uri) {
+		this.uri = uri;
+	}
+	
+	/**
+	 * Sets up optional parameters from buildwrapper initialization.
+	 * @param metadata - if true, will set metadata flag on getversion call to Jenkins.
+	 */
+	@DataBoundSetter public void setJenkinsVersionMeta(String metadata) {
+		if (metadata.toLowerCase().equals("true")) {
+			this.metadata = true;
+		}
+	}
+	
+	/**
+	 * Sets up optional parameters from buildwrapper initialization.
+	 * @param customMetadata - Sets custom version metadata and will override useJenkinsVersionMeta.
+	 */
+	@DataBoundSetter public void setCustomVersionMeta(String customMetadata) {
+		this.customMetadata = customMetadata;
+	}
+	
+	/**
+	 * Sets up optional parameters from buildwrapper initialization.
+	 * @param modifier - will set modifier flag on getversion call
+	 */
+	@DataBoundSetter public void setCustomVersionModifier(String modifier) {
+		this.modifier = modifier;
+	}
+	
+	/**
+	 * Sets up optional parameters from buildwrapper initialization.
+	 * @param onlyVersion - Flag to skip creation of the release.
+	 */
+	@DataBoundSetter public void setOnlyVersion(String onlyVersion) {
+		if (onlyVersion.toLowerCase().equals("true")) {
+			this.onlyVersion = true;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc} <p>
+	 * Retrieves preset credentials and parameters to perform getVersion api call and then sets
+	 * received information as environment variables to pass to subsequent addRelease call.
+	 */
+	@Override
+	public void setUp(Context context, Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
+		//If this does not require a workspace, defer to the version that does not take a workspace and launcher.
+		if (!this.requiresWorkspace()) {
+			this.setUp(context, build, listener, initialEnvironment);
+			return;
+		}
+		
+		listener.getLogger().println("setting up reliza context wrapper");
+		context.env("BUILD_START_TIME", Instant.now().toString());
+		Flags flags = Flags.builder().apiKeyId(initialEnvironment.get("RELIZA_API_USR"))
+			.apiKey(initialEnvironment.get("RELIZA_API_PSW"))
+			.projectId(UUID(projectId, listener))
+			.branch(initialEnvironment.get("GIT_BRANCH"))
+			.modifier(modifier)
+			.onlyVersion(onlyVersion)
+			.build();
+		
+		if (uri != null) {
+			flags.setBaseUrl(uri);
+		}
+		
+		if (customMetadata != null) {
+			flags.setMetadata(customMetadata);
+		} else if (metadata) {
+			flags.setMetadata(initialEnvironment.get("BUILD_NUMBER"));
+		}
+		
+		Library library = new Library(flags);
+		ProjectVersion projectVersion = library.getVersion();
+		ReleaseMetadata releaseMetadata = library.getLatestRelease();
+		
+		listener.getLogger().println("Version is: " + projectVersion.getVersion().toString());
+		if (releaseMetadata != null && releaseMetadata.getSourceCodeEntryDetails() != null) {
+			context.env("LATEST_COMMIT", releaseMetadata.getSourceCodeEntryDetails().getCommit());
+		}
+		context.env("VERSION", projectVersion.getVersion());
+		context.env("DOCKER_VERSION", projectVersion.getDockerTagSafeVersion());
+		context.env("URI", uri);
+		context.env("PROJECT_ID", projectId);
+	}
+	
+	@Symbol("withReliza")
+	@Extension
+	public static final class DescriptorImpl extends BuildWrapperDescriptor {
+		
+		public DescriptorImpl() {
+			super(RelizaBuildWrapper.class);
+			load();
+		}
+		
+		@Override
+		public boolean isApplicable(final AbstractProject<?, ?> item) {
+			return true;
+		}
+	}
+	
+	/**
+	 * String to UUID converter which handles conversion errors.
+	 * @param projectId - Project UUID.
+	 * @param listener - TaskListener to log specific error.
+	 * @return Corresponding UUID if conversion succeeded and null otherwise.
+	 */
+	public static UUID UUID(String projectId, TaskListener listener) {
+		try {
+			if (projectId == null || projectId.isEmpty()) {
+				return null;
+			} else {
+				return UUID.fromString(projectId);
+			}
+		} catch (IllegalArgumentException e) {
+			listener.getLogger().println(e);
+			return null;
+		}
+	}
 }
