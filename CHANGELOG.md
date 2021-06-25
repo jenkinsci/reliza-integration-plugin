@@ -1,5 +1,9 @@
 ## Changelog
 
+### Version 0.1.7 (Jun 25, 2021)
+
+-   Update dependencies
+
 ### Version 0.1.6 (Apr 29, 2021)
 
 -   Supports parameters commit message and commit list
