@@ -1,5 +1,9 @@
 ## Changelog
 
+### Version 0.1.8 (Jul 5, 2021)
+
+-   Fixed bug with dependency not working with jdk 8 or lower
+
 ### Version 0.1.7 (Jun 25, 2021)
 
 -   Update dependencies
