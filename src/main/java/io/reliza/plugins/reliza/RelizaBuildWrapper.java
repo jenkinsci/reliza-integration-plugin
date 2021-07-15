@@ -16,9 +16,9 @@ import hudson.model.AbstractProject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildWrapperDescriptor;
-import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import jenkins.tasks.SimpleBuildWrapper;
 import reliza.java.client.Flags;
+import reliza.java.client.Flags.FlagsBuilder;
 import reliza.java.client.Library;
 import reliza.java.client.responses.FullRelease;
 import reliza.java.client.responses.ProjectVersion;
@@ -109,25 +109,22 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 		
 		listener.getLogger().println("setting up reliza context wrapper");
 		context.env("BUILD_START_TIME", Instant.now().toString());
-		Flags flags = Flags.builder().apiKeyId(initialEnvironment.get("RELIZA_API_USR"))
+		FlagsBuilder flagsBuilder = Flags.builder().apiKeyId(initialEnvironment.get("RELIZA_API_USR"))
 			.apiKey(initialEnvironment.get("RELIZA_API_PSW"))
-			.projectId(UUID(projectId, listener))
+			.projectId(toUUID(projectId, listener))
 			.branch(initialEnvironment.get("GIT_BRANCH"))
 			.commitMessage(initialEnvironment.get("COMMIT_MESSAGE"))
 			.modifier(modifier)
-			.onlyVersion(onlyVersion)
-			.build();
+			.onlyVersion(onlyVersion);
 		
-		if (uri != null) {
-			flags.setBaseUrl(uri);
-		}
-		
+		if (uri != null) flagsBuilder.baseUrl(uri);
 		if (customMetadata != null) {
-			flags.setMetadata(customMetadata);
+			flagsBuilder.metadata(customMetadata);
 		} else if (metadata) {
-			flags.setMetadata(initialEnvironment.get("BUILD_NUMBER"));
+			flagsBuilder.metadata(initialEnvironment.get("BUILD_NUMBER"));
 		}
 		
+		Flags flags = flagsBuilder.build();
 		Library library = new Library(flags);
 		ProjectVersion projectVersion = library.getVersion();
 		FullRelease fullRelease = library.getLatestRelease();
@@ -166,7 +163,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 	 * @param listener - TaskListener to log specific error.
 	 * @return Corresponding UUID if conversion succeeded and null otherwise.
 	 */
-	public static UUID UUID(String projectId, TaskListener listener) {
+	public static UUID toUUID(String projectId, TaskListener listener) {
 		try {
 			if (projectId == null || projectId.isEmpty()) {
 				return null;
