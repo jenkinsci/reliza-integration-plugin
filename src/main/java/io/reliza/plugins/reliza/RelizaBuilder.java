@@ -107,15 +107,15 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 			.vcsUri(envVars.get("GIT_URL"))
 			.dateActual(envVars.get("COMMIT_TIME"))
 			.dateStart(envVars.get("BUILD_START_TIME"))
-			.dateEnd(Instant.now().toString())
+			.dateEnd(Instant.now().toString());
+		
+		if (artId != null && envVars.get("SHA_256") != null) {
+			flagsBuilder.artId(artId)
 			.artBuildId(envVars.get("BUILD_NUMBER"))
 			.artBuildUri(envVars.get("RUN_DISPLAY_URL"))
 			.artCiMeta("Jenkins")
 			.artType(artType)
 			.artDigests(envVars.get("SHA_256"));
-		
-		if (artId != null) {
-			flagsBuilder.artId(artId);
 		}
 		
 		// variables passed through the function override environment variables
