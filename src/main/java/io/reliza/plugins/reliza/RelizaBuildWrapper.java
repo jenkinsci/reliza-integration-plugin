@@ -16,6 +16,7 @@ import hudson.model.AbstractProject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildWrapperDescriptor;
+import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import jenkins.tasks.SimpleBuildWrapper;
 import reliza.java.client.Flags;
 import reliza.java.client.Library;
@@ -112,6 +113,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 			.apiKey(initialEnvironment.get("RELIZA_API_PSW"))
 			.projectId(UUID(projectId, listener))
 			.branch(initialEnvironment.get("GIT_BRANCH"))
+			.commitMessage(initialEnvironment.get("COMMIT_MESSAGE"))
 			.modifier(modifier)
 			.onlyVersion(onlyVersion)
 			.build();
@@ -130,7 +132,10 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 		ProjectVersion projectVersion = library.getVersion();
 		FullRelease fullRelease = library.getLatestRelease();
 		
-		listener.getLogger().println("Version is: " + projectVersion.getVersion().toString());
+		if (projectVersion == null) {
+			throw new RuntimeException("Version could not be retrieved");
+		}
+		listener.getLogger().println("Version is: " + projectVersion.getVersion());
 		if (fullRelease != null && fullRelease.getSourceCodeEntryDetails() != null) {
 			context.env("LATEST_COMMIT", fullRelease.getSourceCodeEntryDetails().getCommit());
 		}

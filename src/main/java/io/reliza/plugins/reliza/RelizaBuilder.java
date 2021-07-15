@@ -75,7 +75,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 			.commitMessage(envVars.get("COMMIT_MESSAGE"))
 			.commitHash(envVars.get("GIT_COMMIT"))
 			.commitList(envVars.get("COMMIT_LIST"))
-			.vcsType("git")
+			.vcsType("Git")
 			.vcsUri(envVars.get("GIT_URL"))
 			.dateActual(envVars.get("COMMIT_TIME"))
 			.artBuildId(envVars.get("BUILD_NUMBER"))
@@ -86,6 +86,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 			.dateEnd(Instant.now().toString())
 			.artDigests(envVars.get("SHA_256"))
 			.build();
+		
 		if (envVars.get("URI") != null) {
 			flags.setBaseUrl(envVars.get("URI"));
 		}
