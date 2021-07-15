@@ -81,11 +81,11 @@ spec:
     stages {
         stage('Build and Deploy') {
             steps {
-                withReliza(jenkinsVersionMeta: 'true', customVersionModifier: 'Test') {
-                    script {
+                script {
+                    env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
+                    env.COMMIT_MESSAGE = sh(script: 'git log -1 --pretty=%s', returnStdout: true).trim()
+                    withReliza(jenkinsVersionMeta: 'true', customVersionModifier: 'Test') {
                         try {
-                            env.COMMIT_TIME = sh(script: 'git log -1 --date=iso-strict --pretty="%ad"', returnStdout: true).trim()
-                            env.COMMIT_MESSAGE = sh(script: 'git log -1 --pretty=%s', returnStdout: true).trim()
                             if (env.LATEST_COMMIT != "") {
                                 env.COMMIT_LIST = sh(script: 'git log $LATEST_COMMIT..$GIT_COMMIT --date=iso-strict --pretty="%H|||%ad|||%s" | base64 -w 0', returnStdout: true).trim()
                             }

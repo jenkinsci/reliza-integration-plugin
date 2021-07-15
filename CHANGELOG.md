@@ -1,5 +1,9 @@
 ## Changelog
 
+### Version 0.1.9 (Jul 15, 2021)
+
+-   Commit message can be passed to withReliza call for intelligent version bumping
+
 ### Version 0.1.8 (Jul 5, 2021)
 
 -   Fixed bug with dependency not working with jdk 8 or lower
