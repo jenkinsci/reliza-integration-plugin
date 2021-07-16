@@ -66,7 +66,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 	
 	/**
 	 * Optional parameter for builder initialization.
-	 * @param artType - Type of created artifact.
+	 * @param version - Custom version of release to create, required if not using withReliza wrapper.
 	 */
 	@DataBoundSetter public void setVersion(String version) {
 		this.version = version;
@@ -74,7 +74,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 	
 	/**
 	 * Optional parameter for builder initialization.
-	 * @param artType - Type of created artifact.
+	 * @param projectId - UUID of project, only used when supplying custom version.
 	 */
 	@DataBoundSetter public void setProjectId(String projectId) {
 		this.projectId = projectId;
@@ -82,7 +82,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 	
 	/**
 	 * Optional parameter for builder initialization.
-	 * @param artType - Type of created artifact.
+	 * @param uri - Base uri of api call, only used when supplying custom version. Default set to "https://app.relizahub.com".
 	 */
 	@DataBoundSetter public void setUri(String uri) {
 		this.uri = uri;

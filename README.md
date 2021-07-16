@@ -31,17 +31,19 @@ In order for the plugin to link your build URL on Reliza Hub, the base URL of yo
 Go to your Jenkins instance -> Manage Jenkins -> Configure System -> Jenkins URL -> put in URL
 
 ## Available parameters
-* *withReliza*: Wrapper will call Reliza Hub to get new version to be released. Version and docker safe version can then be accessed using **env.VERSION** and **env.DOCKER_VERSION** from inside the wrapper
+* *withReliza*: Wrapper will call Reliza Hub to get new version to be released. Version, docker safe version, and latest release commit can then be accessed using **env.VERSION**, **env.DOCKER_VERSION**, and **env.LATEST_COMMIT**
     * uri: Uri is defaulted to https://app.relizahub.com but this parameter can override it if necessary
     * projectId: Uuid of project required only if authenticating using an organization wide api
     * jenkinsVersionMeta: If set to true, will set the metadata flag to the Jenkins build id
     * customVersionMeta: Will set the metadata flag to a custom value and overrides jenkinsVersionMeta
     * customVersionModifier Will set modifier flag to a custom value
-* *addRelizaRelease*: This method can only be called within the withReliza wrapper and will send release details to Reliza Hub
+* *addRelizaRelease*: This method will send release details to Reliza Hub
     * artId: Parameter to specify artifact id
     * artType: Parameter to specify artifact type
     * status: If needed, this parameter will set status and override previously set status environment variables
-* Parameters set as environment variables which *addRelizaRelease* will read when called
+    * version: Parameter to specify custom version of new release instead of calling withReliza
+    * projectId/uri: If not calling withReliza, identical parameters can be used for this call.
+* Parameters set as environment variables which *withReliza* *addRelizaRelease* will read when set
     * STATUS: Sets build status to a choice of either complete or rejected
     * SHA_256: Sets sha256 of artifact
     * COMMIT_TIME: Time of commit

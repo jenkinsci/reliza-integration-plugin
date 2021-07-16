@@ -1,5 +1,10 @@
 ## Changelog
 
+### Version 0.1.10 (Jul 16, 2021)
+
+-   Custom version can be used when sending release metadata
+-   Artifact will not be created if SHA_256 is not supplied
+
 ### Version 0.1.9 (Jul 15, 2021)
 
 -   Commit message can be passed to withReliza call for intelligent version bumping
