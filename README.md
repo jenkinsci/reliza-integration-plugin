@@ -24,7 +24,7 @@ Kind should be set to Username with password and scope should be set to global.
 
 Input your api key id into username and api key into password, then set identifying ID to "RELIZA_API", description can be anything.
 
-### Blue Ocean
+### Jenkins Settings
 
 In order for the plugin to link your build URL on Reliza Hub, the base URL of your Jenkins instance needs to be preset.
 
@@ -34,6 +34,7 @@ Go to your Jenkins instance -> Manage Jenkins -> Configure System -> Jenkins URL
 * *withReliza*: Wrapper will call Reliza Hub to get new version to be released. Version, docker safe version, and latest release commit can then be accessed using **env.VERSION**, **env.DOCKER_VERSION**, and **env.LATEST_COMMIT**
     * uri: Uri is defaulted to https://app.relizahub.com but this parameter can override it if necessary
     * projectId: Uuid of project required only if authenticating using an organization wide api
+    * onlyVersion: If set to true then only version info will be obtained and release creation will be skipped
     * jenkinsVersionMeta: If set to true, will set the metadata flag to the Jenkins build id
     * customVersionMeta: Will set the metadata flag to a custom value and overrides jenkinsVersionMeta
     * customVersionModifier Will set modifier flag to a custom value
@@ -88,7 +89,7 @@ spec:
                     env.COMMIT_MESSAGE = sh(script: 'git log -1 --pretty=%s', returnStdout: true).trim()
                     withReliza(jenkinsVersionMeta: 'true', customVersionModifier: 'Test') {
                         try {
-                            if (env.LATEST_COMMIT != "") {
+                            if (env.LATEST_COMMIT) {
                                 env.COMMIT_LIST = sh(script: 'git log $LATEST_COMMIT..$GIT_COMMIT --date=iso-strict --pretty="%H|||%ad|||%s" | base64 -w 0', returnStdout: true).trim()
                             }
                             container('dind') {

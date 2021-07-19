@@ -2,7 +2,7 @@
 
 ### Version 0.1.10 (Jul 16, 2021)
 
--   Custom version can be used when sending release metadata
+-   Add an option to not request a version and submit a custom version from the build script
 -   Artifact will not be created if SHA_256 is not supplied
 
 ### Version 0.1.9 (Jul 15, 2021)
