@@ -33,6 +33,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 	String version;
 	String uri;
 	String projectId;
+	String envSuffix;
 	
 	/**
 	 * Builder initialization with no required parameters.
@@ -89,37 +90,75 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 	}
 	
 	/**
+	 * Sets up optional parameters from buildwrapper initialization.
+	 * @param envSuffix - Flag which adds a suffix to all environment variables to differentiate from other withReliza calls.
+	 */
+	@DataBoundSetter public void setEnvSuffix(String envSuffix) {
+		this.envSuffix = "_" + envSuffix;
+	}
+	
+	/**
 	 * Extracts project details from environment variables to send release metadata to reliza hub.
 	 */
 	@Override
 	public void perform(Run<?, ?> run, FilePath workspace, EnvVars envVars, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
 		listener.getLogger().println("sending release metadata");
+		
+		// Use env variable with envSuffix if it exists, otherwise use env variable without envSuffix. If neither exist null is passed through.
 		FlagsBuilder flagsBuilder = Flags.builder().apiKeyId(envVars.get("RELIZA_API_USR"))
 			.apiKey(envVars.get("RELIZA_API_PSW"))
-			.branch(envVars.get("GIT_BRANCH"))
-			.version(envVars.get("VERSION"))
-			.status(envVars.get("STATUS"))
-			.projectId(RelizaBuildWrapper.toUUID(envVars.get("PROJECT_ID"), listener))
-			.commitMessage(envVars.get("COMMIT_MESSAGE"))
-			.commitHash(envVars.get("GIT_COMMIT"))
-			.commitList(envVars.get("COMMIT_LIST"))
+			.branch(envVars.containsKey("GIT_BRANCH" + envSuffix) ?
+					envVars.get("GIT_BRANCH" + envSuffix) : envVars.get("GIT_BRANCH"))
+			.version(envVars.containsKey("VERSION" + envSuffix) ?
+					envVars.get("VERSION" + envSuffix) : envVars.get("VERSION"))
+			.status(envVars.containsKey("STATUS" + envSuffix) ?
+					envVars.get("STATUS" + envSuffix) : envVars.get("STATUS"))
+			.projectId(envVars.containsKey("PROJECT_ID" + envSuffix) ?
+					RelizaBuildWrapper.toUUID(envVars.get("PROJECT_ID" + envSuffix), listener) : RelizaBuildWrapper.toUUID(envVars.get("PROJECT_ID"), listener))
+			.commitMessage(envVars.containsKey("COMMIT_MESSAGE" + envSuffix) ?
+					envVars.get("COMMIT_MESSAGE" + envSuffix) : envVars.get("COMMIT_MESSAGE"))
+			.commitHash(envVars.containsKey("GIT_COMMIT" + envSuffix) ?
+					envVars.get("GIT_COMMIT" + envSuffix) : envVars.get("GIT_COMMIT"))
+			.commitList(envVars.containsKey("COMMIT_LIST" + envSuffix) ?
+					envVars.get("COMMIT_LIST" + envSuffix) : envVars.get("COMMIT_LIST"))
 			.vcsType("Git")
-			.vcsUri(envVars.get("GIT_URL"))
-			.dateActual(envVars.get("COMMIT_TIME"))
-			.dateStart(envVars.get("BUILD_START_TIME"))
-			.dateEnd(Instant.now().toString());
+			.vcsUri(envVars.containsKey("GIT_URL" + envSuffix) ?
+					envVars.get("GIT_URL" + envSuffix) : envVars.get("GIT_URL"))
+			.dateActual(envVars.containsKey("COMMIT_TIME" + envSuffix) ?
+					envVars.get("COMMIT_TIME" + envSuffix) : envVars.get("COMMIT_TIME"))
+			.dateStart(envVars.containsKey("BUILD_START_TIME" + envSuffix) ?
+					envVars.get("BUILD_START_TIME" + envSuffix) : envVars.get("BUILD_START_TIME"));
 		
+		if (envVars.containsKey("BUILD_END_TIME" + envSuffix)) {
+			flagsBuilder.dateEnd(envVars.get("BUILD_END_TIME" + envSuffix));
+		} else if (envVars.containsKey("BUILD_END_TIME")) {
+			flagsBuilder.dateEnd(envVars.get("BUILD_END_TIME"));
+		} else {
+			// Last resort use current time as build end time
+			flagsBuilder.dateEnd(Instant.now().toString());
+		}
+		
+		// To create an artifact both the id and build sha256 need to exist
 		if (artId != null && envVars.get("SHA_256") != null) {
 			flagsBuilder.artId(artId)
-			.artBuildId(envVars.get("BUILD_NUMBER"))
-			.artBuildUri(envVars.get("RUN_DISPLAY_URL"))
+			.artBuildId(envVars.containsKey("BUILD_NUMBER" + envSuffix) ?
+					envVars.get("BUILD_NUMBER" + envSuffix) : envVars.get("BUILD_NUMBER"))
+			.artBuildUri(envVars.containsKey("RUN_DISPLAY_URL" + envSuffix) ?
+					envVars.get("RUN_DISPLAY_URL" + envSuffix) : envVars.get("RUN_DISPLAY_URL"))
 			.artCiMeta("Jenkins")
 			.artType(artType)
-			.artDigests(envVars.get("SHA_256"));
+			.artDigests(envVars.containsKey("SHA_256" + envSuffix) ?
+					envVars.get("SHA_256" + envSuffix) : envVars.get("SHA_256"));
+		}
+		
+		// Cannot pass null uri as it has a default set already
+		if (envVars.containsKey("URI" + envSuffix)) {
+			flagsBuilder.baseUrl(envVars.get("URI" + envSuffix));
+		} else if (envVars.containsKey("URI")) {
+			flagsBuilder.baseUrl(envVars.get("URI"));
 		}
 		
 		// variables passed through the function override environment variables
-		if (envVars.get("URI") != null) flagsBuilder.baseUrl(envVars.get("URI"));
 		if (uri != null) flagsBuilder.baseUrl(uri);
 		if (status != null) flagsBuilder.status(status);
 		if (version != null) flagsBuilder.version(version);

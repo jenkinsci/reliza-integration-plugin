@@ -33,6 +33,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 	private String customMetadata;
 	private String modifier;
 	private Boolean onlyVersion = false;
+	private String envSuffix = "";
 	
 	/**
 	 * Buildwrapper initialization with no required parameters.
@@ -95,33 +96,47 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 	}
 	
 	/**
+	 * Sets up optional parameters from buildwrapper initialization.
+	 * @param envSuffix - Flag which adds a suffix to all environment variables to differentiate from other addRelizaRelease calls.
+	 */
+	@DataBoundSetter public void setEnvSuffix(String envSuffix) {
+		this.envSuffix = "_" + envSuffix;
+	}
+	
+	/**
 	 * {@inheritDoc} <p>
 	 * Retrieves preset credentials and parameters to perform getVersion api call and then sets
 	 * received information as environment variables to pass to subsequent addRelease call.
 	 */
 	@Override
 	public void setUp(Context context, Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
-		//If this does not require a workspace, defer to the version that does not take a workspace and launcher.
+		// If this does not require a workspace, defer to the version that does not take a workspace and launcher.
 		if (!this.requiresWorkspace()) {
 			this.setUp(context, build, listener, initialEnvironment);
 			return;
 		}
-		
 		listener.getLogger().println("setting up reliza context wrapper");
+		
+		// As a backup, use this call to determine build start time
 		context.env("BUILD_START_TIME", Instant.now().toString());
+		// Use env variable with envSuffix if it exists, otherwise use env variable without envSuffix. If neither exist null is passed through.
 		FlagsBuilder flagsBuilder = Flags.builder().apiKeyId(initialEnvironment.get("RELIZA_API_USR"))
 			.apiKey(initialEnvironment.get("RELIZA_API_PSW"))
 			.projectId(toUUID(projectId, listener))
-			.branch(initialEnvironment.get("GIT_BRANCH"))
-			.commitMessage(initialEnvironment.get("COMMIT_MESSAGE"))
+			.branch(initialEnvironment.containsKey("GIT_BRANCH" + envSuffix) ?
+					initialEnvironment.get("GIT_BRANCH" + envSuffix) : initialEnvironment.get("GIT_BRANCH"))
+			.commitMessage(initialEnvironment.containsKey("COMMIT_MESSAGE" + envSuffix) ?
+					initialEnvironment.get("COMMIT_MESSAGE" + envSuffix) : initialEnvironment.get("COMMIT_MESSAGE"))
 			.modifier(modifier)
 			.onlyVersion(onlyVersion);
 		
+		// Uri has a default value so cannot use null
 		if (uri != null) flagsBuilder.baseUrl(uri);
 		if (customMetadata != null) {
 			flagsBuilder.metadata(customMetadata);
 		} else if (metadata) {
-			flagsBuilder.metadata(initialEnvironment.get("BUILD_NUMBER"));
+			flagsBuilder.metadata(initialEnvironment.containsKey("BUILD_NUMBER" + envSuffix) ?
+					initialEnvironment.get("BUILD_NUMBER" + envSuffix) : initialEnvironment.get("BUILD_NUMBER"));
 		}
 		
 		Flags flags = flagsBuilder.build();
@@ -134,12 +149,12 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 		}
 		listener.getLogger().println("Version is: " + projectVersion.getVersion());
 		if (fullRelease != null && fullRelease.getSourceCodeEntryDetails() != null) {
-			context.env("LATEST_COMMIT", fullRelease.getSourceCodeEntryDetails().getCommit());
+			context.env("LATEST_COMMIT" + envSuffix, fullRelease.getSourceCodeEntryDetails().getCommit());
 		}
-		context.env("VERSION", projectVersion.getVersion());
-		context.env("DOCKER_VERSION", projectVersion.getDockerTagSafeVersion());
-		context.env("URI", uri);
-		context.env("PROJECT_ID", projectId);
+		context.env("VERSION" + envSuffix, projectVersion.getVersion());
+		context.env("DOCKER_VERSION" + envSuffix, projectVersion.getDockerTagSafeVersion());
+		context.env("URI" + envSuffix, uri);
+		context.env("PROJECT_ID" + envSuffix, projectId);
 	}
 	
 	@Symbol("withReliza")
