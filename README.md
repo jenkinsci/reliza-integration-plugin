@@ -31,25 +31,42 @@ In order for the plugin to link your build URL on Reliza Hub, the base URL of yo
 Go to your Jenkins instance -> Manage Jenkins -> Configure System -> Jenkins URL -> put in URL
 
 ## Available parameters
-* *withReliza*: Wrapper will call Reliza Hub to get new version to be released. Version, docker safe version, and latest release commit can then be accessed using **env.VERSION**, **env.DOCKER_VERSION**, and **env.LATEST_COMMIT**
+* *withReliza*: Wrapper will call Reliza Hub to get new version to be released. Version, docker safe version, and latest release commit can then be accessed from inside the wrapper using **env.VERSION**, **env.DOCKER_VERSION**, and **env.LATEST_COMMIT**
     * uri: Uri is defaulted to https://app.relizahub.com but this parameter can override it if necessary
     * projectId: Uuid of project required only if authenticating using an organization wide api
     * onlyVersion: If set to true then only version info will be obtained and release creation will be skipped
     * jenkinsVersionMeta: If set to true, will set the metadata flag to the Jenkins build id
     * customVersionMeta: Will set the metadata flag to a custom value and overrides jenkinsVersionMeta
-    * customVersionModifier Will set modifier flag to a custom value
+    * customVersionModifier: Will set modifier flag to a custom value
+    * envSuffix: withReliza will now both send and expect environment variables with this suffix appended to it. Used for calling Reliza commands multiple times. e.g: pass envSuffix: "TEST" and commitMessage has to be set using env.COMMIT_MESSAGE_TEST and you can only access version through env.VERSION_TEST
 * *addRelizaRelease*: This method will send release details to Reliza Hub
     * artId: Parameter to specify artifact id
     * artType: Parameter to specify artifact type
     * status: If needed, this parameter will set status and override previously set status environment variables
     * version: Parameter to specify custom version of new release instead of calling withReliza
-    * projectId/uri: If not calling withReliza, identical parameters can be used for this call.
-* Parameters set as environment variables which *withReliza* *addRelizaRelease* will read when set
+    * envSuffix: Identical functionality to envSuffix in withReliza
+    * projectId/uri: If not calling withReliza, identical parameters can be used for this call
+* Parameters set as environment variables which *withReliza* will read when set
+    * GIT_BRANCH: Branch of commit, defaults to branch of commit which triggered build
+    * BUILD_NUMBER: Build number, defaults to Jenkins build number
+    * COMMIT_MESSAGE: Message of commit
+* Parameters set as environment variables which *addRelizaRelease* will read when set
+    * GIT_BRANCH: Branch of commit, defaults to branch which triggered build
+    * GIT_URL: Url of repository, defaults to repository url of commit
+    * GIT_COMMIT: Hash of commit, defaults to hash of commit which triggered build
+    * COMMIT_TIME: Time of commit, defaults to time of commit which triggered build
+    * BUILD_NUMBER: Build number, defaults to Jenkins build number
+    * RUN_DISPLAY_URL: Direct link to build display, defaults to Jenkins build
+    * BUILD_START_TIME: Time of start of build, defaults to time when withReliza is called
+    * BUILD_END_TIME: Time of end of build, defaults to time when addRelizaRelease is called
     * STATUS: Sets build status to a choice of either complete or rejected
     * SHA_256: Sets sha256 of artifact
-    * COMMIT_TIME: Time of commit
     * COMMIT_MESSAGE: Message of commit
     * COMMIT_LIST: Base64 encoded list of commits since latest release, below example shows how to format
+
+withReliza is usually called to get the correct version from Reliza Hub which can then be used to call addRelizaRelease to create a new release. If needed the version parameter allows you to create a new release without calling withReliza.
+
+Most parameters are automatically set using the initial build information as specified in the parameters, however they can all be overriden if necessary.
 
 ## Example Jenkinsfile/Pipeline usage
 

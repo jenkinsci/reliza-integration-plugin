@@ -1,5 +1,9 @@
 ## Changelog
 
+### Version 0.1.11 (Jul 20, 2021)
+
+-   Add envSuffix parameter to allow for multiple Reliza calls by differentiating parameters
+
 ### Version 0.1.10 (Jul 16, 2021)
 
 -   Add an option to not request a version and submit a custom version from the build script
