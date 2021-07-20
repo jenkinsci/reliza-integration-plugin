@@ -2,6 +2,7 @@ package io.reliza.plugins.reliza;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.UUID;
 
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -104,65 +105,47 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 	public void perform(Run<?, ?> run, FilePath workspace, EnvVars envVars, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
 		listener.getLogger().println("sending release metadata");
 		
-		// Use env variable with envSuffix if it exists, otherwise use env variable without envSuffix. If neither exist null is passed through.
 		FlagsBuilder flagsBuilder = Flags.builder().apiKeyId(envVars.get("RELIZA_API_USR"))
 			.apiKey(envVars.get("RELIZA_API_PSW"))
-			.branch(envVars.containsKey("GIT_BRANCH" + envSuffix) ?
-					envVars.get("GIT_BRANCH" + envSuffix) : envVars.get("GIT_BRANCH"))
-			.version(envVars.containsKey("VERSION" + envSuffix) ?
-					envVars.get("VERSION" + envSuffix) : envVars.get("VERSION"))
-			.status(envVars.containsKey("STATUS" + envSuffix) ?
-					envVars.get("STATUS" + envSuffix) : envVars.get("STATUS"))
-			.projectId(envVars.containsKey("PROJECT_ID" + envSuffix) ?
-					RelizaBuildWrapper.toUUID(envVars.get("PROJECT_ID" + envSuffix), listener) : RelizaBuildWrapper.toUUID(envVars.get("PROJECT_ID"), listener))
-			.commitMessage(envVars.containsKey("COMMIT_MESSAGE" + envSuffix) ?
-					envVars.get("COMMIT_MESSAGE" + envSuffix) : envVars.get("COMMIT_MESSAGE"))
-			.commitHash(envVars.containsKey("GIT_COMMIT" + envSuffix) ?
-					envVars.get("GIT_COMMIT" + envSuffix) : envVars.get("GIT_COMMIT"))
-			.commitList(envVars.containsKey("COMMIT_LIST" + envSuffix) ?
-					envVars.get("COMMIT_LIST" + envSuffix) : envVars.get("COMMIT_LIST"))
+			.branch(resolveEnvVar("GIT_BRANCH", envSuffix, envVars))
+			.version(resolveEnvVar("VERSION", envSuffix, envVars))
+			.status(resolveEnvVar("STATUS", envSuffix, envVars))
+			.projectId(toUUID(resolveEnvVar("PROJECT_ID", envSuffix, envVars), listener))
+			.commitMessage(resolveEnvVar("COMMIT_MESSAGE", envSuffix, envVars))
+			.commitHash(resolveEnvVar("GIT_COMMIT", envSuffix, envVars))
+			.commitList(resolveEnvVar("COMMIT_LIST", envSuffix, envVars))
 			.vcsType("Git")
-			.vcsUri(envVars.containsKey("GIT_URL" + envSuffix) ?
-					envVars.get("GIT_URL" + envSuffix) : envVars.get("GIT_URL"))
-			.dateActual(envVars.containsKey("COMMIT_TIME" + envSuffix) ?
-					envVars.get("COMMIT_TIME" + envSuffix) : envVars.get("COMMIT_TIME"))
-			.dateStart(envVars.containsKey("BUILD_START_TIME" + envSuffix) ?
-					envVars.get("BUILD_START_TIME" + envSuffix) : envVars.get("BUILD_START_TIME"));
+			.vcsUri(resolveEnvVar("GIT_URL", envSuffix, envVars))
+			.dateActual(resolveEnvVar("COMMIT_TIME", envSuffix, envVars))
+			.dateStart(resolveEnvVar("BUILD_START_TIME", envSuffix, envVars));
 		
-		if (envVars.containsKey("BUILD_END_TIME" + envSuffix)) {
-			flagsBuilder.dateEnd(envVars.get("BUILD_END_TIME" + envSuffix));
-		} else if (envVars.containsKey("BUILD_END_TIME")) {
-			flagsBuilder.dateEnd(envVars.get("BUILD_END_TIME"));
+		if (resolveEnvVar("BUILD_END_TIME", envSuffix, envVars) == null) {
+			flagsBuilder.dateEnd(resolveEnvVar("BUILD_END_TIME", envSuffix, envVars));
 		} else {
-			// Last resort use current time as build end time
+			// Backup use current time as build end time
 			flagsBuilder.dateEnd(Instant.now().toString());
 		}
 		
 		// To create an artifact both the id and build sha256 need to exist
 		if (artId != null && envVars.get("SHA_256") != null) {
 			flagsBuilder.artId(artId)
-			.artBuildId(envVars.containsKey("BUILD_NUMBER" + envSuffix) ?
-					envVars.get("BUILD_NUMBER" + envSuffix) : envVars.get("BUILD_NUMBER"))
-			.artBuildUri(envVars.containsKey("RUN_DISPLAY_URL" + envSuffix) ?
-					envVars.get("RUN_DISPLAY_URL" + envSuffix) : envVars.get("RUN_DISPLAY_URL"))
+			.artBuildId(resolveEnvVar("BUILD_NUMBER", envSuffix, envVars))
+			.artBuildUri(resolveEnvVar("RUN_DISPLAY_URL", envSuffix, envVars))
 			.artCiMeta("Jenkins")
 			.artType(artType)
-			.artDigests(envVars.containsKey("SHA_256" + envSuffix) ?
-					envVars.get("SHA_256" + envSuffix) : envVars.get("SHA_256"));
+			.artDigests(resolveEnvVar("SHA_256", envSuffix, envVars));
 		}
 		
 		// Cannot pass null uri as it has a default set already
-		if (envVars.containsKey("URI" + envSuffix)) {
-			flagsBuilder.baseUrl(envVars.get("URI" + envSuffix));
-		} else if (envVars.containsKey("URI")) {
-			flagsBuilder.baseUrl(envVars.get("URI"));
+		if (resolveEnvVar("URI", envSuffix, envVars) != null) {
+			flagsBuilder.baseUrl(resolveEnvVar("URI", envSuffix, envVars));
 		}
 		
 		// variables passed through the function override environment variables
 		if (uri != null) flagsBuilder.baseUrl(uri);
 		if (status != null) flagsBuilder.status(status);
 		if (version != null) flagsBuilder.version(version);
-		if (projectId != null) flagsBuilder.projectId(RelizaBuildWrapper.toUUID(projectId, listener));
+		if (projectId != null) flagsBuilder.projectId(toUUID(projectId, listener));
 		
 		Flags flags = flagsBuilder.build();
 		Library library = new Library(flags);
@@ -179,5 +162,41 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 		public boolean isApplicable(Class<? extends AbstractProject> aClass) {
 			return true;
 		}
+	}
+	
+	/**
+	 * String to UUID converter which handles conversion errors.
+	 * @param projectId - Project UUID.
+	 * @param listener - TaskListener to log specific error.
+	 * @return Corresponding UUID if conversion succeeded and null otherwise.
+	 */
+	public static UUID toUUID(String projectId, TaskListener listener) {
+		try {
+			if (projectId == null || projectId.isEmpty()) {
+				return null;
+			} else {
+				return UUID.fromString(projectId);
+			}
+		} catch (IllegalArgumentException e) {
+			listener.getLogger().println(e);
+			return null;
+		}
+	}
+	
+	/**
+	 * Obtains env variable with envSuffix if it exists, otherwise obtains env variable without envSuffix. If neither exist null is passed through.
+	 * @param envVar - Key to resolve to a value using environment variables
+	 * @param suffix - Search for environment variables with this suffix
+	 * @param envVars - Map of all environment variables to search through
+	 * @return Corresponding value from environment variable map
+	 */
+	public static String resolveEnvVar(String envVar, String suffix, EnvVars envVars) {
+		String envVarValue = null;
+		if (envVars.containsKey(envVar + suffix)) {
+			envVarValue = envVars.get(envVar + suffix);
+		} else if (envVars.containsKey(envVar)) {
+			envVarValue = envVars.get(envVar);
+		}
+		return envVarValue;
 	}
 }

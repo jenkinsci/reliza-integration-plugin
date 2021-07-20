@@ -2,7 +2,6 @@ package io.reliza.plugins.reliza;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.UUID;
 
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -119,14 +118,11 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 		
 		// As a backup, use this call to determine build start time
 		context.env("BUILD_START_TIME", Instant.now().toString());
-		// Use env variable with envSuffix if it exists, otherwise use env variable without envSuffix. If neither exist null is passed through.
 		FlagsBuilder flagsBuilder = Flags.builder().apiKeyId(initialEnvironment.get("RELIZA_API_USR"))
 			.apiKey(initialEnvironment.get("RELIZA_API_PSW"))
-			.projectId(toUUID(projectId, listener))
-			.branch(initialEnvironment.containsKey("GIT_BRANCH" + envSuffix) ?
-					initialEnvironment.get("GIT_BRANCH" + envSuffix) : initialEnvironment.get("GIT_BRANCH"))
-			.commitMessage(initialEnvironment.containsKey("COMMIT_MESSAGE" + envSuffix) ?
-					initialEnvironment.get("COMMIT_MESSAGE" + envSuffix) : initialEnvironment.get("COMMIT_MESSAGE"))
+			.projectId(RelizaBuilder.toUUID(projectId, listener))
+			.branch(RelizaBuilder.resolveEnvVar("GIT_BRANCH", envSuffix, initialEnvironment))
+			.commitMessage(RelizaBuilder.resolveEnvVar("COMMIT_MESSAGE", envSuffix, initialEnvironment))
 			.modifier(modifier)
 			.onlyVersion(onlyVersion);
 		
@@ -135,8 +131,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 		if (customMetadata != null) {
 			flagsBuilder.metadata(customMetadata);
 		} else if (metadata) {
-			flagsBuilder.metadata(initialEnvironment.containsKey("BUILD_NUMBER" + envSuffix) ?
-					initialEnvironment.get("BUILD_NUMBER" + envSuffix) : initialEnvironment.get("BUILD_NUMBER"));
+			flagsBuilder.metadata(RelizaBuilder.resolveEnvVar("BUILD_NUMBER", envSuffix, initialEnvironment));
 		}
 		
 		Flags flags = flagsBuilder.build();
@@ -169,25 +164,6 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 		@Override
 		public boolean isApplicable(final AbstractProject<?, ?> item) {
 			return true;
-		}
-	}
-	
-	/**
-	 * String to UUID converter which handles conversion errors.
-	 * @param projectId - Project UUID.
-	 * @param listener - TaskListener to log specific error.
-	 * @return Corresponding UUID if conversion succeeded and null otherwise.
-	 */
-	public static UUID toUUID(String projectId, TaskListener listener) {
-		try {
-			if (projectId == null || projectId.isEmpty()) {
-				return null;
-			} else {
-				return UUID.fromString(projectId);
-			}
-		} catch (IllegalArgumentException e) {
-			listener.getLogger().println(e);
-			return null;
 		}
 	}
 }
