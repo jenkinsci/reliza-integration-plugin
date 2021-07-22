@@ -34,6 +34,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 	String version;
 	String uri;
 	String projectId;
+	Boolean useCommitList = false;
 	String envSuffix;
 	
 	/**
@@ -94,6 +95,16 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 	 * Sets up optional parameters from buildwrapper initialization.
 	 * @param envSuffix - Flag which adds a suffix to all environment variables to differentiate from other withReliza calls.
 	 */
+	@DataBoundSetter public void setUseCommitList(String useCommitList) {
+		if (useCommitList.equalsIgnoreCase("true")) {
+			this.useCommitList = true;
+		}
+	}
+	
+	/**
+	 * Sets up optional parameters from buildwrapper initialization.
+	 * @param envSuffix - Flag which adds a suffix to all environment variables to differentiate from other withReliza calls.
+	 */
 	@DataBoundSetter public void setEnvSuffix(String envSuffix) {
 		this.envSuffix = "_" + envSuffix;
 	}
@@ -111,13 +122,16 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 			.version(resolveEnvVar("VERSION", envSuffix, envVars))
 			.status(resolveEnvVar("STATUS", envSuffix, envVars))
 			.projectId(toUUID(resolveEnvVar("PROJECT_ID", envSuffix, envVars), listener))
-			.commitMessage(resolveEnvVar("COMMIT_MESSAGE", envSuffix, envVars))
-			.commitHash(resolveEnvVar("GIT_COMMIT", envSuffix, envVars))
 			.commitList(resolveEnvVar("COMMIT_LIST", envSuffix, envVars))
 			.vcsType("Git")
 			.vcsUri(resolveEnvVar("GIT_URL", envSuffix, envVars))
-			.dateActual(resolveEnvVar("COMMIT_TIME", envSuffix, envVars))
 			.dateStart(resolveEnvVar("BUILD_START_TIME", envSuffix, envVars));
+		
+		if (!useCommitList) {
+			flagsBuilder.commitHash(resolveEnvVar("GIT_COMMIT", envSuffix, envVars))
+			.commitMessage(resolveEnvVar("COMMIT_MESSAGE", envSuffix, envVars))
+			.dateActual(resolveEnvVar("COMMIT_TIME", envSuffix, envVars));
+		}
 		
 		if (resolveEnvVar("BUILD_END_TIME", envSuffix, envVars) == null) {
 			flagsBuilder.dateEnd(resolveEnvVar("BUILD_END_TIME", envSuffix, envVars));

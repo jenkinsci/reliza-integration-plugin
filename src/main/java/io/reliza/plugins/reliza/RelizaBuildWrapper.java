@@ -32,6 +32,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 	private String customMetadata;
 	private String modifier;
 	private Boolean onlyVersion = false;
+	private Boolean getVersion = true;
 	private String envSuffix = "";
 	
 	/**
@@ -89,8 +90,18 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 	 * @param onlyVersion - Flag to skip creation of the release.
 	 */
 	@DataBoundSetter public void setOnlyVersion(String onlyVersion) {
-		if (onlyVersion.toLowerCase().equals("true")) {
+		if (onlyVersion.equalsIgnoreCase("true")) {
 			this.onlyVersion = true;
+		}
+	}
+	
+	/**
+	 * Sets up optional parameters from buildwrapper initialization.
+	 * @param envSuffix - Flag to determine whether version information will be gotten from Reliza Hub or not.
+	 */
+	@DataBoundSetter public void setGetVersion(String getVersion) {
+		if (getVersion.equalsIgnoreCase("false")) {
+			this.getVersion = false;
 		}
 	}
 	
@@ -101,6 +112,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 	@DataBoundSetter public void setEnvSuffix(String envSuffix) {
 		this.envSuffix = "_" + envSuffix;
 	}
+	
 	
 	/**
 	 * {@inheritDoc} <p>
@@ -123,6 +135,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 			.projectId(RelizaBuilder.toUUID(projectId, listener))
 			.branch(RelizaBuilder.resolveEnvVar("GIT_BRANCH", envSuffix, initialEnvironment))
 			.commitMessage(RelizaBuilder.resolveEnvVar("COMMIT_MESSAGE", envSuffix, initialEnvironment))
+			.commitList(RelizaBuilder.resolveEnvVar("COMMIT_LIST", envSuffix, initialEnvironment))
 			.modifier(modifier)
 			.onlyVersion(onlyVersion);
 		
@@ -136,18 +149,21 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 		
 		Flags flags = flagsBuilder.build();
 		Library library = new Library(flags);
-		ProjectVersion projectVersion = library.getVersion();
-		FullRelease fullRelease = library.getLatestRelease();
 		
-		if (projectVersion == null) {
-			throw new RuntimeException("Version could not be retrieved");
+		if (getVersion) {
+			ProjectVersion projectVersion = library.getVersion();
+			if (projectVersion == null) {
+				throw new RuntimeException("Version could not be retrieved");
+			}
+			listener.getLogger().println("Version is: " + projectVersion.getVersion());
+			context.env("VERSION" + envSuffix, projectVersion.getVersion());
+			context.env("DOCKER_VERSION" + envSuffix, projectVersion.getDockerTagSafeVersion());
 		}
-		listener.getLogger().println("Version is: " + projectVersion.getVersion());
+		
+		FullRelease fullRelease = library.getLatestRelease();
 		if (fullRelease != null && fullRelease.getSourceCodeEntryDetails() != null) {
 			context.env("LATEST_COMMIT" + envSuffix, fullRelease.getSourceCodeEntryDetails().getCommit());
 		}
-		context.env("VERSION" + envSuffix, projectVersion.getVersion());
-		context.env("DOCKER_VERSION" + envSuffix, projectVersion.getDockerTagSafeVersion());
 		context.env("URI" + envSuffix, uri);
 		context.env("PROJECT_ID" + envSuffix, projectId);
 	}
