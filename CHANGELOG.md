@@ -1,5 +1,11 @@
 ## Changelog
 
+### Version 0.1.12 (Jul 22, 2021)
+
+-   withReliza can now read commit list
+-   getVersion parameter allows withReliza to disregard getting version from Reliza Hub and just to set latest commit
+-   useCommitList parameter allows addRelizaRelease to prioritize commit information from commit list over git commit, commit message, and commit time
+
 ### Version 0.1.11 (Jul 20, 2021)
 
 -   Add envSuffix parameter to allow for multiple Reliza calls by differentiating parameters

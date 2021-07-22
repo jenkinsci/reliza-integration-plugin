@@ -38,18 +38,21 @@ Go to your Jenkins instance -> Manage Jenkins -> Configure System -> Jenkins URL
     * jenkinsVersionMeta: If set to true, will set the metadata flag to the Jenkins build id
     * customVersionMeta: Will set the metadata flag to a custom value and overrides jenkinsVersionMeta
     * customVersionModifier: Will set modifier flag to a custom value
+    * getVersion: If set to false then wrapper will skip getting the new version to be released from Reliza Hub and will only set latest release commit to environment.
     * envSuffix: withReliza will now both send and expect environment variables with this suffix appended to it. Used for calling Reliza commands multiple times. e.g: pass envSuffix: "TEST" and commitMessage has to be set using env.COMMIT_MESSAGE_TEST and you can only access version through env.VERSION_TEST
 * *addRelizaRelease*: This method will send release details to Reliza Hub
     * artId: Parameter to specify artifact id
     * artType: Parameter to specify artifact type
     * status: If needed, this parameter will set status and override previously set status environment variables
     * version: Parameter to specify custom version of new release instead of calling withReliza
+    * useCommitList: If set to true, will disregard git commit, commit message, and commit time and will instead parse them using commit list
     * envSuffix: Identical functionality to envSuffix in withReliza
     * projectId/uri: If not calling withReliza, identical parameters can be used for this call
 * Parameters set as environment variables which *withReliza* will read when set
     * GIT_BRANCH: Branch of commit, defaults to branch of commit which triggered build
     * BUILD_NUMBER: Build number, defaults to Jenkins build number
     * COMMIT_MESSAGE: Message of commit
+    * COMMIT_LIST: Base64 encoded list of commits since latest release, below example shows how to format
 * Parameters set as environment variables which *addRelizaRelease* will read when set
     * GIT_BRANCH: Branch of commit, defaults to branch which triggered build
     * GIT_URL: Url of repository, defaults to repository url of commit
