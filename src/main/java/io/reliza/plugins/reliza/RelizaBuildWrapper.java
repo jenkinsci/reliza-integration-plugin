@@ -97,7 +97,7 @@ public class RelizaBuildWrapper extends SimpleBuildWrapper {
 	
 	/**
 	 * Sets up optional parameters from buildwrapper initialization.
-	 * @param envSuffix - Flag to determine whether version information will be gotten from Reliza Hub or not.
+	 * @param getVersion - Flag to determine whether version information will be gotten from Reliza Hub or not.
 	 */
 	@DataBoundSetter public void setGetVersion(String getVersion) {
 		if (getVersion.equalsIgnoreCase("false")) {

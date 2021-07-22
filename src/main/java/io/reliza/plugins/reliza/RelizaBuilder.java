@@ -93,7 +93,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 	
 	/**
 	 * Sets up optional parameters from buildwrapper initialization.
-	 * @param envSuffix - Flag which adds a suffix to all environment variables to differentiate from other withReliza calls.
+	 * @param useCommitList - Flag which allows commit information from commit list to be prioritized over other commit parameters
 	 */
 	@DataBoundSetter public void setUseCommitList(String useCommitList) {
 		if (useCommitList.equalsIgnoreCase("true")) {
