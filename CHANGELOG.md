@@ -2,7 +2,7 @@
 
 ### Version 0.1.13 (Aug 23, 2021)
 
--   Use original commit if commitlist is empty
+-   Use original commit if commit list is empty
 
 ### Version 0.1.12 (Jul 22, 2021)
 
