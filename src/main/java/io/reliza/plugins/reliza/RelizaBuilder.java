@@ -17,6 +17,7 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
+import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import jenkins.tasks.SimpleBuildStep;
 
 import reliza.java.client.Flags;
@@ -127,7 +128,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 			.vcsUri(resolveEnvVar("GIT_URL", envSuffix, envVars))
 			.dateStart(resolveEnvVar("BUILD_START_TIME", envSuffix, envVars));
 		
-		if (!useCommitList) {
+		if (!useCommitList || StringUtils.isEmpty(resolveEnvVar("COMMIT_LIST", envSuffix, envVars))) {
 			flagsBuilder.commitHash(resolveEnvVar("GIT_COMMIT", envSuffix, envVars))
 			.commitMessage(resolveEnvVar("COMMIT_MESSAGE", envSuffix, envVars))
 			.dateActual(resolveEnvVar("COMMIT_TIME", envSuffix, envVars));
