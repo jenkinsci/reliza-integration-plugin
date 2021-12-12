@@ -33,8 +33,8 @@ public class RelizaBuilderTest {
 		project.getBuildWrappersList().add(relizaBuildWrapper);
 		
 		EnvVars envVars = new hudson.slaves.EnvironmentVariablesNodeProperty().getEnvVars();
-		envVars.put("RELIZA_API_USR", "PROJECT__e84763be-38a3-429b-9e4d-5c75a77e02c7");
-		envVars.put("RELIZA_API_PSW", "d7fa82031731148a15e8c0fae3a169c901794aaa13b09e240af2dac9853762237e64f77910ac2e23ac672b13ba5279c4");
+		envVars.put("RELIZA_API_USR", "PROJECT__24625ac0-0256-4638-99d2-f245cc56ff8f");
+		envVars.put("RELIZA_API_PSW", "5953d4e03ce1bbb6183665bf3b7db41ab713e87af47c5dbfd77bead8d339c71366566db15aef87a7a5ced6231ea433fb");
 		envVars.put("GIT_BRANCH", "master");
 		relizaBuildWrapper.setUp(context, null, null, null, listener, envVars);
 		
