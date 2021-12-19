@@ -1,8 +1,12 @@
 ## Changelog
 
+### Version 0.1.15 (Dec 18, 2021)
+
+-   Bump Reliza Java Client dependency to 0.1.99 (Includes log4j 2.17.0  - fixes subsequent CVEs against log4j)
+
 ### Version 0.1.14 (Dec 12, 2021)
 
--   Bump Reliza Java Client dependency to 0.1.77 (Bumps included log4j - fixes CVE-2021-44228)
+-   Bump Reliza Java Client dependency to 0.1.77 (Includes log4j 2.15.0  - fixes CVE-2021-44228)
 -   Bump Jenkins parent plugin dependency to 4.31
 
 ### Version 0.1.13 (Aug 23, 2021)
