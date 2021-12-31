@@ -4,9 +4,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
+import hudson.EnvVars;
 import hudson.model.FreeStyleProject;
 import hudson.model.TaskListener;
-import hudson.EnvVars;
 import io.reliza.plugins.reliza.RelizaBuildWrapper;
 import io.reliza.plugins.reliza.RelizaBuilder;
 import jenkins.tasks.SimpleBuildWrapper.Context;
@@ -34,7 +34,7 @@ public class RelizaBuilderTest {
 		
 		EnvVars envVars = new hudson.slaves.EnvironmentVariablesNodeProperty().getEnvVars();
 		envVars.put("RELIZA_API_USR", "PROJECT__24625ac0-0256-4638-99d2-f245cc56ff8f");
-		envVars.put("RELIZA_API_PSW", "109e32c0330e5e8cc05e350e79c4c0699d2cb4afc710261953190b08897dbeeb8583312b176ef1588d911e354404c358");
+		envVars.put("RELIZA_API_PSW", "917dca5223f2203346c25a5ecbb1e98a2bec136ac2bbcdf1bcfeec797c0879c0ef09cc45d5337e0cd6e0b69db12af5e3");
 		envVars.put("GIT_BRANCH", "master");
 		relizaBuildWrapper.setUp(context, null, null, null, listener, envVars);
 		

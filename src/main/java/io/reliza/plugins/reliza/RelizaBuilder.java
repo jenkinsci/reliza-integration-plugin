@@ -19,7 +19,6 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import jenkins.tasks.SimpleBuildStep;
-
 import reliza.java.client.Flags;
 import reliza.java.client.Flags.FlagsBuilder;
 import reliza.java.client.Library;
@@ -134,7 +133,7 @@ public class RelizaBuilder extends Builder implements SimpleBuildStep {
 			.dateActual(resolveEnvVar("COMMIT_TIME", envSuffix, envVars));
 		}
 		
-		if (resolveEnvVar("BUILD_END_TIME", envSuffix, envVars) == null) {
+		if (resolveEnvVar("BUILD_END_TIME", envSuffix, envVars) != null) {
 			flagsBuilder.dateEnd(resolveEnvVar("BUILD_END_TIME", envSuffix, envVars));
 		} else {
 			// Backup use current time as build end time
