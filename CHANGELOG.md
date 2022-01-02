@@ -1,5 +1,9 @@
 ## Changelog
 
+### Version 0.1.17 (Jan 01, 2022)
+
+-   Bump Reliza Java Client dependency to 0.1.103 (Fixes version retrieval in some scenarios)
+
 ### Version 0.1.16 (Dec 30, 2021)
 
 -   Fix setting of build end time on Reliza Hub when BUILD_END_TIME environment variable is not set explicitly
