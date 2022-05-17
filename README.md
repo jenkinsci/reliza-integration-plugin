@@ -110,7 +110,7 @@ spec:
                     withReliza(jenkinsVersionMeta: 'true', customVersionModifier: 'Test') {
                         try {
                             if (env.LATEST_COMMIT) {
-                                env.COMMIT_LIST = sh(script: 'git log $LATEST_COMMIT..$GIT_COMMIT --date=iso-strict --pretty="%H|||%ad|||%s" | base64 -w 0', returnStdout: true).trim()
+                                env.COMMIT_LIST = sh(script: 'git log $LATEST_COMMIT..$GIT_COMMIT --date=iso-strict --pretty="%H|||%ad|||%s|||%an|||%ae" | base64 -w 0', returnStdout: true).trim()
                             }
                             container('dind') {
                                 sh '''

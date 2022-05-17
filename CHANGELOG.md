@@ -1,5 +1,9 @@
 ## Changelog
 
+### Version 0.1.18 (May 17, 2022)
+
+-   Bump Reliza Java Client dependency to 0.1.106 (Support extended commit list format with author and email)
+
 ### Version 0.1.17 (Jan 01, 2022)
 
 -   Bump Reliza Java Client dependency to 0.1.103 (Fixes version retrieval in some scenarios)
