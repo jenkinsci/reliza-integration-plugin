@@ -1,5 +1,10 @@
 ## Changelog
 
+### Version 0.2.0 (December 20, 2022)
+
+-   Bump Reliza Java Client dependency to 0.2.4 (Supports API created type response)
+-   Bump commons-io to 2.11.0 (Supports API created type response)
+
 ### Version 0.1.18 (May 17, 2022)
 
 -   Bump Reliza Java Client dependency to 0.1.106 (Support extended commit list format with author and email)
