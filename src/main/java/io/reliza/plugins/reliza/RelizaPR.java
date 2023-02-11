@@ -45,7 +45,7 @@ import reliza.java.client.responses.ReleaseData;
  * - closedDate (optional) - flag to denote datetime when the pull request was closed. <br>
  * - mergedDate (optional) - flag to denote datetime when the pull request was merged. <br>
  * - projectId (optional) - flag to denote project uuid. Required if organization-wide read-write key is used, ignored if project specific api key is used. <br>
- * @return returns true if successful API call and null otherwise.
+ * returns true if successful API call and null otherwise.
  */
 public class RelizaPR extends Builder implements SimpleBuildStep {
 	
