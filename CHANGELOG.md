@@ -1,5 +1,11 @@
 ## Changelog
 
+
+### Version 0.3.2 (February 11, 2023)
+
+-   Bump Reliza Java Client dependency to 0.3.6 (Supports API for Pull Request data)
+-   Support for shipping Pull Request metadata to Reliza Hub
+
 ### Version 0.2.0 (December 20, 2022)
 
 -   Bump Reliza Java Client dependency to 0.2.4 (Supports API created type response)
