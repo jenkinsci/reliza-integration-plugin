@@ -165,7 +165,7 @@ public class RelizaPR extends Builder implements SimpleBuildStep {
 	 * Sets up optional parameters from buildwrapper initialization.
 	 * @param commits - comma seprated commit shas on the pull request
 	 */
-	@DataBoundSetter public void setUseCommitList(String commits) {
+	@DataBoundSetter public void setCommits(String commits) {
 		this.commits = commits;
 	}
 
@@ -190,7 +190,7 @@ public class RelizaPR extends Builder implements SimpleBuildStep {
 	 */
 	@Override
 	public void perform(Run<?, ?> run, FilePath workspace, EnvVars envVars, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
-		listener.getLogger().println("sending release metadata");
+		listener.getLogger().println("sending pr data");
 		
 		FlagsBuilder flagsBuilder = Flags.builder().apiKeyId(envVars.get("RELIZA_API_USR"))
 			.apiKey(envVars.get("RELIZA_API_PSW"))
@@ -210,7 +210,6 @@ public class RelizaPR extends Builder implements SimpleBuildStep {
 		if (title != null) flagsBuilder.title(title);
 		if (number != null) flagsBuilder.number(number);
 		if (commits != null) flagsBuilder.commits(commits);
-		if (commit != null) flagsBuilder.commitHash(commit);
 		if (createdDate != null) flagsBuilder.createdDate(createdDate);
 		if (closedDate != null) flagsBuilder.closedDate(closedDate);
 		if (mergedDate != null) flagsBuilder.mergedDate(mergedDate);
