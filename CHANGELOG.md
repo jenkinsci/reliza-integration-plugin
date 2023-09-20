@@ -1,5 +1,9 @@
 ## Changelog
 
+### Version 0.3.3 (September 20, 2023)
+
+-   Bump Reliza Java Client dependency to 0.4.7 (Security Update)
+-   Support for using commit field in Pull Requests
 
 ### Version 0.3.2 (February 11, 2023)
 
