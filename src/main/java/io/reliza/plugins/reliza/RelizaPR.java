@@ -1,7 +1,6 @@
 package io.reliza.plugins.reliza;
 
 import java.io.IOException;
-
 import java.util.UUID;
 
 import org.jenkinsci.Symbol;
@@ -17,12 +16,10 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
-import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import jenkins.tasks.SimpleBuildStep;
 import reliza.java.client.Flags;
 import reliza.java.client.Flags.FlagsBuilder;
 import reliza.java.client.Library;
-import reliza.java.client.responses.ReleaseData;
 
 /**
  * Uses the prdata method from reliza library within the reliza wrapper to send release details to reliza hub.
@@ -40,7 +37,7 @@ import reliza.java.client.responses.ReleaseData;
  * - title (required) - flag to denote title of the pull request. <br>
  * - number (required) - flag to denote number of the pull request. <br>
  * - commits (required) - flag to denote comma seprated commit shas on this pull request (Optional when single commit flag is used). <br>
- * - commits (optional) - flag to denote current commit sha of this pull request. <br>
+ * - commit (optional) - flag to denote current commit sha of this pull request. <br>
  * - createdDate (required) - flag to denote datetime when the pull request was created. <br>
  * - closedDate (optional) - flag to denote datetime when the pull request was closed. <br>
  * - mergedDate (optional) - flag to denote datetime when the pull request was merged. <br>
@@ -209,7 +206,11 @@ public class RelizaPR extends Builder implements SimpleBuildStep {
 		if (endpoint != null) flagsBuilder.endPoint(endpoint);
 		if (title != null) flagsBuilder.title(title);
 		if (number != null) flagsBuilder.number(number);
-		if (commits != null) flagsBuilder.commits(commits);
+		if (commits != null) {
+			flagsBuilder.commits(commits);
+		} else if (commit != null) {
+			flagsBuilder.commitHash(commit);
+		}
 		if (createdDate != null) flagsBuilder.createdDate(createdDate);
 		if (closedDate != null) flagsBuilder.closedDate(closedDate);
 		if (mergedDate != null) flagsBuilder.mergedDate(mergedDate);
