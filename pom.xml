@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.51</version>
+        <version>4.88</version>
         <relativePath />
     </parent>
     <groupId>io.reliza</groupId>
@@ -15,7 +15,7 @@
         <revision>0.3.4</revision>
         <changelist>-SNAPSHOT</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-        <jenkins.baseline>2.346</jenkins.baseline>
+        <jenkins.baseline>2.462</jenkins.baseline>
 
         <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
         <jenkins.version>${jenkins.baseline}.3</jenkins.version>
@@ -44,7 +44,7 @@
                 <!-- Pick up common dependencies for the selected LTS line: https://github.com/jenkinsci/bom#usage -->
                 <groupId>io.jenkins.tools.bom</groupId>
                 <artifactId>bom-${jenkins.baseline}.x</artifactId>
-                <version>1763.v092b_8980a_f5e</version>
+                <version>4136.vca_c3202a_7fd1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -102,14 +102,6 @@
           <version>1.6.20</version>
         </dependency>
     </dependencies>
-    
-    <developers>
-      <developer>
-        <id>reliza</id>
-        <name>Reliza</name>
-        <email>info@reliza.io</email>
-      </developer>
-    </developers>
 
     <repositories>
         <repository>
