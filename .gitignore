@@ -8,6 +8,7 @@ work
 *.iws
 *.ipr
 .idea
+.vscode
 
 # Eclipse project files
 .settings
