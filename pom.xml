@@ -9,10 +9,10 @@
     </parent>
     <groupId>io.reliza</groupId>
     <artifactId>reliza-integration</artifactId>
-    <version>0.3.5</version>
+    <version>${revision}${changelist}</version>
     <packaging>hpi</packaging>
     <properties>
-        <revision>0.3.5</revision>
+        <revision>0.3.6</revision>
         <changelist>-SNAPSHOT</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.baseline>2.479</jenkins.baseline>
