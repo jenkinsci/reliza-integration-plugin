@@ -1,5 +1,9 @@
 ## Changelog
 
+### Version 0.3.5 (February 15, 2025)
+
+-   Security updates of dependencies
+
 ### Version 0.3.3 (September 20, 2023)
 
 -   Bump Reliza Java Client dependency to 0.4.7 (Security Update)
