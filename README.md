@@ -2,13 +2,16 @@
 
 ## Plugin use
 
-Plugin integrates itself with Reliza Hub (https://app.relizahub.com), allowing you to automatically set new releases through your Jenkinsfile. More information on how to use Reliza Hub here https://www.youtube.com/watch?v=yDlf5fMBGuI
+This plugin integrates itself with [Reliza Hub](https://app.relizahub.com), allowing you to automatically set new releases through your Jenkinsfile. 
+
+More information on how to use Reliza Hub:
+https://www.youtube.com/watch?v=yDlf5fMBGuI
 
 ## Setting up instance
 
 For the plugin to interact with Reliza Hub you will need to set up credentials on your Jenkins instance.
 
-### Acquiring api key and id
+### Acquiring Api Key and ID
 
 Project API: Go to Reliza Hub -> project -> project you wish to integrate -> click on padlock -> record given api key and id
 
@@ -20,7 +23,7 @@ Project ID (if using Org API): Go to Reliza Hub -> project -> project you wish t
 
 Go to your Jenkins instance -> Manage Jenkins -> Manage Credentials -> Domains: (global) -> Add Credentials
 
-Kind should be set to Username with password and scope should be set to global.
+Set the credential type to "Username with password" and the scope to "Global".
 
 Input your api key id into username and api key into password, then set identifying ID to "RELIZA_API", description can be anything.
 
