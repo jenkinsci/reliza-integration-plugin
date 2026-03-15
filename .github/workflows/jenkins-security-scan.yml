@@ -15,7 +15,52 @@ permissions:
 
 jobs:
   security-scan:
-    uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v2
-    with:
-      java-cache: 'maven' # Optionally enable use of a build dependency cache. Specify 'maven' or 'gradle' as appropriate.
-      # java-version: 21 # Optionally specify what version of Java to set up for the build, or remove to use a recent default.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out plugin
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java
+          config: |
+            disable-default-queries: true
+            packs:
+            - jenkins-infra/jenkins-codeql@0.0.3
+            - codeql/java-queries:AlertSuppression.ql
+            - codeql/java-queries:AlertSuppressionAnnotations.ql
+
+      - name: Build
+        run: mvn -B -V -ntp -Dmaven.test.skip compile
+
+      - name: Run CodeQL
+        id: generate-sarif
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: Jenkins Security Scan
+          upload: failure-only
+
+      - name: Process SARIF
+        run: |
+          jq 'setpath(path(.runs[].tool.driver.name); "Jenkins Security Scan") | setpath(path(.runs[].tool.driver.organization); "Jenkins Project") | del(.runs[].results[] | select( .suppressions | length != 0 ))' ../results/java.sarif > jenkins-security-scan.sarif
+          mv -v ../results/java.sarif .
+
+      - name: Archive SARIF
+        uses: actions/upload-artifact@v4
+        with:
+          path: '*.sarif'
+          name: Jenkins Security Scan SARIF
+
+      - name: Upload Scan Result
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: jenkins-security-scan.sarif
+          category: Jenkins Security Scan
