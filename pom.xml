@@ -13,7 +13,7 @@
     <packaging>hpi</packaging>
     <properties>
         <revision>0.3.6</revision>
-        <changelist>-SNAPSHOT</changelist>
+        <changelist></changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.baseline>2.492</jenkins.baseline>
 
