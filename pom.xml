@@ -78,7 +78,7 @@
         <dependency>
             <groupId>io.reliza</groupId>
             <artifactId>reliza-java-client</artifactId>
-            <version>0.4.16</version>
+            <version>0.4.18</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-io</groupId>
