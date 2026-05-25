@@ -12,8 +12,8 @@
     <version>${revision}${changelist}</version>
     <packaging>hpi</packaging>
     <properties>
-        <revision>0.4.0</revision>
-        <changelist></changelist>
+        <revision>0.4.1</revision>
+        <changelist>-SNAPSHOT</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.baseline>2.492</jenkins.baseline>
 
@@ -35,7 +35,7 @@
         <connection>scm:git:https://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
         <developerConnection>scm:git:https://github.com/jenkinsci/${project.artifactId}-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
-        <tag>reliza-integration-0.4.0</tag>
+        <tag>reliza-integration-0.3.6</tag>
     </scm>
 
     <dependencyManagement>
